@@ -1,0 +1,43 @@
+{
+  "name": "second-look",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prepare:assets": "node scripts/prepare-assets.mjs",
+    "build": "npm run prepare:assets && tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "eval": "tsx scripts/evaluate.ts",
+    "eval:dev": "tsx scripts/evaluate.ts --dev",
+    "test:e2e": "playwright test",
+    "screenshots": "tsx scripts/screenshots.ts",
+    "format": "prettier --write src scripts tests playwright.config.ts"
+  },
+  "dependencies": {
+    "jsqr": "1.4.0",
+    "preact": "11.1.1",
+    "tesseract.js": "7.0.0",
+    "tldts": "7.4.19"
+  },
+  "devDependencies": {
+    "@playwright/test": "latest",
+    "@preact/preset-vite": "latest",
+    "@tesseract.js-data/eng": "latest",
+    "@types/node": "latest",
+    "@types/qrcode": "latest",
+    "prettier": "^3.9.10",
+    "qrcode": "latest",
+    "sharp": "latest",
+    "tsx": "latest",
+    "typescript": "latest",
+    "vite": "8.3.5",
+    "vite-plugin-pwa": "2.0.0",
+    "vitest": "5.0.5",
+    "workbox-cacheable-response": "7.4.1",
+    "workbox-precaching": "7.4.1",
+    "workbox-routing": "7.4.1",
+    "workbox-strategies": "7.4.1"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+data/
+.npm/
+test-results/
+playwright-report/
+public/ocr/
+.env*
+!.env.example
+.DS_Store

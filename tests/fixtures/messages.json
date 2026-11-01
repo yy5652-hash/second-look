@@ -1,0 +1,782 @@
+[
+  {
+    "id": "scam-01",
+    "label": "scam",
+    "text": "Please send me your password so I can fix your account.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-02",
+    "label": "scam",
+    "text": "Reply with the verification code we just sent you.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-03",
+    "label": "scam",
+    "text": "Tell our agent your one-time code to cancel this purchase.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-04",
+    "label": "scam",
+    "text": "Give me your login code to stop the transfer.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-05",
+    "label": "scam",
+    "text": "Enter your password at account-help.example now.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-06",
+    "label": "scam",
+    "text": "Provide your PIN to the fraud department immediately.",
+    "rule": "credentials"
+  },
+  {
+    "id": "scam-07",
+    "label": "scam",
+    "text": "Please buy gift cards and send the numbers to me urgently.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-08",
+    "label": "scam",
+    "text": "Pay in bitcoin right now to keep your account.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-09",
+    "label": "scam",
+    "text": "Send the deposit using Zelle immediately.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-10",
+    "label": "scam",
+    "text": "Wire money to our agent within 2 hours.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-11",
+    "label": "scam",
+    "text": "Transfer funds using Western Union now.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-12",
+    "label": "scam",
+    "text": "Send crypto to my wallet to release the payment.",
+    "rule": "payment"
+  },
+  {
+    "id": "scam-13",
+    "label": "scam",
+    "text": "Install AnyDesk so our support agent can repair your computer.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-14",
+    "label": "scam",
+    "text": "Download TeamViewer and let us check your account.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-15",
+    "label": "scam",
+    "text": "Please enable remote access to fix the banking error.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-16",
+    "label": "scam",
+    "text": "Open UltraViewer for this urgent security inspection.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-17",
+    "label": "scam",
+    "text": "Install RustDesk and tell the agent when you are ready.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-18",
+    "label": "scam",
+    "text": "Grant screen sharing to the refund agent.",
+    "rule": "remote"
+  },
+  {
+    "id": "scam-19",
+    "label": "scam",
+    "text": "There is an arrest warrant for you. Pay today to avoid arrest.",
+    "rule": "threat"
+  },
+  {
+    "id": "scam-20",
+    "label": "scam",
+    "text": "Your account will be suspended. Act now: https://security-check.example",
+    "rule": "threat"
+  },
+  {
+    "id": "scam-21",
+    "label": "scam",
+    "text": "You will be arrested unless you pay the police immediately.",
+    "rule": "threat"
+  },
+  {
+    "id": "scam-22",
+    "label": "scam",
+    "text": "Legal action against you will begin. Wire money urgently.",
+    "rule": "threat"
+  },
+  {
+    "id": "scam-23",
+    "label": "scam",
+    "text": "Keep this secret. Buy gift cards and send them to me.",
+    "rule": "secrecy"
+  },
+  {
+    "id": "scam-24",
+    "label": "scam",
+    "text": "Don't tell anyone. Send money by bank transfer now.",
+    "rule": "secrecy"
+  },
+  {
+    "id": "scam-25",
+    "label": "scam",
+    "text": "Keep it confidential and share your password with me.",
+    "rule": "secrecy"
+  },
+  {
+    "id": "scam-26",
+    "label": "scam",
+    "text": "Do not tell anyone. Provide your verification code here.",
+    "rule": "secrecy"
+  },
+  {
+    "id": "scam-27",
+    "label": "scam",
+    "text": "Hi mum, new number. I need help with a bill today.",
+    "rule": "family"
+  },
+  {
+    "id": "scam-28",
+    "label": "scam",
+    "text": "Hello dad, my phone is broken. Please pay this invoice for me.",
+    "rule": "family"
+  },
+  {
+    "id": "scam-29",
+    "label": "scam",
+    "text": "Hey mom, this is my new phone number. Send money by bank transfer.",
+    "rule": "family"
+  },
+  {
+    "id": "scam-30",
+    "label": "scam",
+    "text": "Hi grandma, my mobile was stolen. I need a transfer urgently.",
+    "rule": "family"
+  },
+  {
+    "id": "scam-31",
+    "label": "scam",
+    "text": "Sorry, wrong number. I can teach you crypto trading.",
+    "rule": "wrong-number"
+  },
+  {
+    "id": "scam-32",
+    "label": "scam",
+    "text": "I meant to text someone else. Would you like an investment tip?",
+    "rule": "wrong-number"
+  },
+  {
+    "id": "scam-33",
+    "label": "scam",
+    "text": "Sorry to bother you. My bitcoin profits are huge, join me.",
+    "rule": "wrong-number"
+  },
+  {
+    "id": "scam-34",
+    "label": "scam",
+    "text": "Is this Anna? My trading group has a place for you.",
+    "rule": "wrong-number"
+  },
+  {
+    "id": "scam-35",
+    "label": "scam",
+    "text": "Our plan offers guaranteed returns every week.",
+    "rule": "investment"
+  },
+  {
+    "id": "scam-36",
+    "label": "scam",
+    "text": "Join risk-free trading with our expert mentor.",
+    "rule": "investment"
+  },
+  {
+    "id": "scam-37",
+    "label": "scam",
+    "text": "We can double your money in a week.",
+    "rule": "investment"
+  },
+  {
+    "id": "scam-38",
+    "label": "scam",
+    "text": "Earn 20% daily with our private investment club.",
+    "rule": "investment"
+  },
+  {
+    "id": "scam-39",
+    "label": "scam",
+    "text": "Earn $500 per day by completing simple tasks from home.",
+    "rule": "job"
+  },
+  {
+    "id": "scam-40",
+    "label": "scam",
+    "text": "Make £900 a day with just a phone and no experience.",
+    "rule": "job"
+  },
+  {
+    "id": "scam-41",
+    "label": "scam",
+    "text": "Deposit money to unlock your earnings and start again.",
+    "rule": "job"
+  },
+  {
+    "id": "scam-42",
+    "label": "scam",
+    "text": "Like videos and earn commission with our recruiter.",
+    "rule": "job"
+  },
+  {
+    "id": "scam-43",
+    "label": "scam",
+    "text": "You have won a prize. Claim your winnings at prize-office.example.",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-44",
+    "label": "scam",
+    "text": "Congratulations, you are our selected winner. Pay to collect.",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-45",
+    "label": "scam",
+    "text": "Claim your refund today at tax-refund.example/claim.",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-46",
+    "label": "scam",
+    "text": "Your unclaimed prize is waiting. Act now at rewards.example.",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-47",
+    "label": "scam",
+    "text": "Your parcel needs a fee. Pay at https://delivery-fee.example.",
+    "rule": "parcel"
+  },
+  {
+    "id": "scam-48",
+    "label": "scam",
+    "text": "Unpaid toll: settle payment at https://toll-office.example now.",
+    "rule": "parcel"
+  },
+  {
+    "id": "scam-49",
+    "label": "scam",
+    "text": "USPS package delivery requires a customs charge: https://parcel-fee.example.",
+    "rule": "parcel"
+  },
+  {
+    "id": "scam-50",
+    "label": "scam",
+    "text": "Royal Mail: postage due. Use https://delivery-payment.example to pay.",
+    "rule": "parcel"
+  },
+  {
+    "id": "scam-51",
+    "label": "scam",
+    "text": "Your account is locked. Visit https://unlock-service.example.",
+    "rule": "locked"
+  },
+  {
+    "id": "scam-52",
+    "label": "scam",
+    "text": "Unusual sign-in detected. Verify your account: https://login-help.example.",
+    "rule": "locked"
+  },
+  {
+    "id": "scam-53",
+    "label": "scam",
+    "text": "Your account has been suspended. https://restore-access.example",
+    "rule": "locked"
+  },
+  {
+    "id": "scam-54",
+    "label": "scam",
+    "text": "Your account is restricted. Follow https://support-check.example.",
+    "rule": "locked"
+  },
+  {
+    "id": "scam-55",
+    "label": "scam",
+    "text": "I overpaid you by mistake. Send me the difference.",
+    "rule": "overpayment"
+  },
+  {
+    "id": "scam-56",
+    "label": "scam",
+    "text": "We refunded you too much. Transfer the extra back to us.",
+    "rule": "overpayment"
+  },
+  {
+    "id": "scam-57",
+    "label": "scam",
+    "text": "Please return the extra from my payment to this new account.",
+    "rule": "overpayment"
+  },
+  {
+    "id": "scam-58",
+    "label": "scam",
+    "text": "Refund the excess to our agent before the payment clears.",
+    "rule": "overpayment"
+  },
+  {
+    "id": "scam-59",
+    "label": "scam",
+    "text": "https://paypa1.example/login",
+    "rule": "link-0-lookalike"
+  },
+  {
+    "id": "scam-60",
+    "label": "scam",
+    "text": "https://paypal.support-check.example/login",
+    "rule": "link-0-lookalike"
+  },
+  {
+    "id": "scam-61",
+    "label": "scam",
+    "text": "https://amazon-security.example/check",
+    "rule": "link-0-lookalike"
+  },
+  {
+    "id": "scam-62",
+    "label": "scam",
+    "text": "Urgent: https://paypal.com@payment-check.example/login",
+    "rule": "link-0-userinfo"
+  },
+  {
+    "id": "scam-63",
+    "label": "scam",
+    "text": "https://pаypal.example",
+    "rule": "link-0-mixed"
+  },
+  {
+    "id": "scam-64",
+    "label": "scam",
+    "text": "Immediately verify at http://192.0.2.15/confirm",
+    "rule": "link-0-ip"
+  },
+  {
+    "id": "scam-65",
+    "label": "scam",
+    "text": "Your account is locked: https://bit.ly/fictional-test",
+    "rule": "link-0-shortener"
+  },
+  {
+    "id": "scam-66",
+    "label": "scam",
+    "text": "hxxps://micros0ft[.]example/login",
+    "rule": "link-0-lookalike"
+  },
+  {
+    "id": "genuine-01",
+    "label": "genuine",
+    "text": "Your login code is 482961. Never share this code with anyone."
+  },
+  {
+    "id": "genuine-02",
+    "label": "genuine",
+    "text": "We will never ask for your password. Your statement is ready in the app."
+  },
+  {
+    "id": "genuine-03",
+    "label": "genuine",
+    "text": "Never send anyone your verification code, even if they say they are support."
+  },
+  {
+    "id": "genuine-04",
+    "label": "genuine",
+    "text": "Do not share your password. Keep your account details private."
+  },
+  {
+    "id": "genuine-05",
+    "label": "genuine",
+    "text": "We won't ask you to provide your PIN by text."
+  },
+  {
+    "id": "genuine-06",
+    "label": "genuine",
+    "text": "You must not send gift cards to anyone who calls claiming to be us."
+  },
+  {
+    "id": "genuine-07",
+    "label": "genuine",
+    "text": "Don't install AnyDesk at the request of a stranger."
+  },
+  {
+    "id": "genuine-08",
+    "label": "genuine",
+    "text": "Avoid sharing personal details in messages you did not expect."
+  },
+  {
+    "id": "genuine-09",
+    "label": "genuine",
+    "text": "Your dentist appointment is tomorrow at 10:30. Please call to reschedule."
+  },
+  {
+    "id": "genuine-10",
+    "label": "genuine",
+    "text": "A reminder of your eye test on Tuesday at 14:00."
+  },
+  {
+    "id": "genuine-11",
+    "label": "genuine",
+    "text": "The library book you reserved is ready to collect."
+  },
+  {
+    "id": "genuine-12",
+    "label": "genuine",
+    "text": "Your parcel is out for delivery today. No action is needed."
+  },
+  {
+    "id": "genuine-13",
+    "label": "genuine",
+    "text": "Your package was delivered at the reception desk."
+  },
+  {
+    "id": "genuine-14",
+    "label": "genuine",
+    "text": "DHL delivery update: the driver will arrive tomorrow morning."
+  },
+  {
+    "id": "genuine-15",
+    "label": "genuine",
+    "text": "Royal Mail: your delivery is scheduled for Thursday."
+  },
+  {
+    "id": "genuine-16",
+    "label": "genuine",
+    "text": "Your bank statement is now available. Open your banking app to read it."
+  },
+  {
+    "id": "genuine-17",
+    "label": "genuine",
+    "text": "Your monthly account statement has been issued. No action is required."
+  },
+  {
+    "id": "genuine-18",
+    "label": "genuine",
+    "text": "HSBC statement notice: please read it in the app at your convenience."
+  },
+  {
+    "id": "genuine-19",
+    "label": "genuine",
+    "text": "Urgent, call me when you get a minute. I left my keys at home."
+  },
+  {
+    "id": "genuine-20",
+    "label": "genuine",
+    "text": "Please call me urgently about dinner tonight."
+  },
+  {
+    "id": "genuine-21",
+    "label": "genuine",
+    "text": "Act now if you want the last slice of pizza in the kitchen."
+  },
+  {
+    "id": "genuine-22",
+    "label": "genuine",
+    "text": "Your appointment is within 2 hours. We look forward to seeing you."
+  },
+  {
+    "id": "genuine-23",
+    "label": "genuine",
+    "text": "This is the final notice about tomorrow's rehearsal schedule."
+  },
+  {
+    "id": "genuine-24",
+    "label": "genuine",
+    "text": "I bought a gift card for my sister's birthday yesterday."
+  },
+  {
+    "id": "genuine-25",
+    "label": "genuine",
+    "text": "The gift cards are in the drawer next to the wrapping paper."
+  },
+  {
+    "id": "genuine-26",
+    "label": "genuine",
+    "text": "I used a bank transfer to pay our rent yesterday."
+  },
+  {
+    "id": "genuine-27",
+    "label": "genuine",
+    "text": "My class is discussing cryptocurrency risks this week."
+  },
+  {
+    "id": "genuine-28",
+    "label": "genuine",
+    "text": "Our lesson covers why guaranteed returns are suspicious."
+  },
+  {
+    "id": "genuine-29",
+    "label": "genuine",
+    "text": "The article warns readers about risk-free investments."
+  },
+  {
+    "id": "genuine-30",
+    "label": "genuine",
+    "text": "Please do not send me your password. I do not need it."
+  },
+  {
+    "id": "genuine-31",
+    "label": "genuine",
+    "text": "I will never ask you to install TeamViewer on your computer."
+  },
+  {
+    "id": "genuine-32",
+    "label": "genuine",
+    "text": "We do not ask customers to pay with gift cards."
+  },
+  {
+    "id": "genuine-33",
+    "label": "genuine",
+    "text": "Don't reply with your login code. Contact support in the app."
+  },
+  {
+    "id": "genuine-34",
+    "label": "genuine",
+    "text": "Do not give remote access to unsolicited callers."
+  },
+  {
+    "id": "genuine-35",
+    "label": "genuine",
+    "text": "The prize for our school raffle is a book voucher."
+  },
+  {
+    "id": "genuine-36",
+    "label": "genuine",
+    "text": "I won the chess match yesterday, thanks for helping me practise."
+  },
+  {
+    "id": "genuine-37",
+    "label": "genuine",
+    "text": "The refund for your returned shoes has been processed."
+  },
+  {
+    "id": "genuine-38",
+    "label": "genuine",
+    "text": "Your refund is on its way to the original payment method."
+  },
+  {
+    "id": "genuine-39",
+    "label": "genuine",
+    "text": "We have received your payment. Keep this receipt for your records."
+  },
+  {
+    "id": "genuine-40",
+    "label": "genuine",
+    "text": "Your order has been dispatched. Thank you for shopping with us."
+  },
+  {
+    "id": "genuine-41",
+    "label": "genuine",
+    "text": "Hi mum, I will be home at six. Shall I bring some bread?"
+  },
+  {
+    "id": "genuine-42",
+    "label": "genuine",
+    "text": "Hi dad, can you call me after your meeting?"
+  },
+  {
+    "id": "genuine-43",
+    "label": "genuine",
+    "text": "This is my new number. I'll see you at the office on Monday."
+  },
+  {
+    "id": "genuine-44",
+    "label": "genuine",
+    "text": "Sorry, wrong number. Have a nice day."
+  },
+  {
+    "id": "genuine-45",
+    "label": "genuine",
+    "text": "I meant to text someone else. Please ignore my previous message."
+  },
+  {
+    "id": "genuine-46",
+    "label": "genuine",
+    "text": "The investment seminar has moved to lecture hall three."
+  },
+  {
+    "id": "genuine-47",
+    "label": "genuine",
+    "text": "Our careers fair starts at nine. Bring copies of your resume."
+  },
+  {
+    "id": "genuine-48",
+    "label": "genuine",
+    "text": "The job interview is on Wednesday. No fees are required."
+  },
+  {
+    "id": "genuine-49",
+    "label": "genuine",
+    "text": "You can use our free study room after class today."
+  },
+  {
+    "id": "genuine-50",
+    "label": "genuine",
+    "text": "Please check the timetable at https://campus.example/schedule."
+  },
+  {
+    "id": "genuine-51",
+    "label": "genuine",
+    "text": "The recipe is at food-notes.example/soup if you want to try it."
+  },
+  {
+    "id": "genuine-52",
+    "label": "genuine",
+    "text": "Here are the event photos: https://photos.example/album."
+  },
+  {
+    "id": "genuine-53",
+    "label": "genuine",
+    "text": "Your registration is confirmed. We will send the joining details tomorrow."
+  },
+  {
+    "id": "genuine-54",
+    "label": "genuine",
+    "text": "I need to leave early today to catch my train."
+  },
+  {
+    "id": "genuine-55",
+    "label": "genuine",
+    "text": "Can you bring your card to pay for your share of lunch?"
+  },
+  {
+    "id": "genuine-56",
+    "label": "genuine",
+    "text": "Please pay the invoice using the usual account details we agreed on."
+  },
+  {
+    "id": "genuine-57",
+    "label": "genuine",
+    "text": "The police have published guidance on reporting fraud."
+  },
+  {
+    "id": "genuine-58",
+    "label": "genuine",
+    "text": "Microsoft announced an update to the software we use in class."
+  },
+  {
+    "id": "genuine-59",
+    "label": "genuine",
+    "text": "Apple is the topic of our business case study this week."
+  },
+  {
+    "id": "genuine-60",
+    "label": "genuine",
+    "text": "This is a reminder to update your emergency contact in the school office."
+  },
+  {
+    "id": "genuine-61",
+    "label": "genuine",
+    "text": "We never tell people to keep this secret. Talk to someone you trust."
+  },
+  {
+    "id": "genuine-62",
+    "label": "genuine",
+    "text": "The customer did not send the difference; the original order was cancelled."
+  },
+  {
+    "id": "genuine-63",
+    "label": "genuine",
+    "text": "Do not pay in bitcoin. We accept payment only at our reception desk."
+  },
+  {
+    "id": "genuine-64",
+    "label": "genuine",
+    "text": "We will not ask you to verify your account using a text link."
+  },
+  {
+    "id": "genuine-65",
+    "label": "genuine",
+    "text": "Don't tell our agent your one-time code. Ignore that request."
+  },
+  {
+    "id": "genuine-66",
+    "label": "genuine",
+    "text": "Thank you for volunteering. Your shift starts at 11:00 tomorrow."
+  },
+  {
+    "id": "scam-67",
+    "label": "scam",
+    "text": "Your mobile number was awarded a £2000 bonus prize. To claim, call 09061234567 now.",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-68",
+    "label": "scam",
+    "text": "Congrats! A cinema pass for 2 is yours. Text WIN to 87121 to collect.",
+    "rule": "premium"
+  },
+  {
+    "id": "scam-69",
+    "label": "scam",
+    "text": "Your tax refund of 349.14 is ready to be claimed. Follow the steps at http://refund-claim.example",
+    "rule": "prize"
+  },
+  {
+    "id": "scam-70",
+    "label": "scam",
+    "text": "Final notification: your Apple ID is due to expire today. Confirm it at http://verifyapple.example",
+    "rule": "link-0-lookalike"
+  },
+  {
+    "id": "genuine-67",
+    "label": "genuine",
+    "text": "Reply STOP to 78888 to opt out of appointment reminders.",
+    "rule": null
+  },
+  {
+    "id": "genuine-68",
+    "label": "genuine",
+    "text": "I will see you at 6.30 if the bus is on time. Ring me tomorrow.call me when you can.",
+    "rule": null
+  },
+  {
+    "id": "genuine-69",
+    "label": "genuine",
+    "text": "Your verification code is 482913. Enter it on the sign-in page.",
+    "rule": null
+  },
+  {
+    "id": "genuine-70",
+    "label": "genuine",
+    "text": "We are happy to say that you won't need to bring anything to the interview.",
+    "rule": null
+  },
+  {
+    "id": "genuine-71",
+    "label": "genuine",
+    "text": "Meet at the pineapple.example cafe at 6.30 for the group dinner.",
+    "rule": null
+  }
+]

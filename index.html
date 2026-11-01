@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; manifest-src 'self'; base-uri 'none'; form-action 'none'"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#234b40" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      name="description"
+      content="Not sure about a message? Take a second look. Private, on-device checks and clear next steps. No account or upload."
+    />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <title>Second Look — A moment before you act</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <noscript
+      >Second Look needs JavaScript to check messages on your device. If in doubt, do not use the
+      message's links. Contact the person or organisation using details you already trust.</noscript
+    >
+  </body>
+</html>
