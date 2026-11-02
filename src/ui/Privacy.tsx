@@ -8,7 +8,7 @@ export function isExternalResource(name: string, origin: string) {
     return false;
   }
 }
-export function Privacy() {
+export function Privacy({ compact = false }: { compact?: boolean }) {
   const [count, setCount] = useState(0),
     [available, setAvailable] = useState(true);
   useEffect(() => {
@@ -37,6 +37,17 @@ export function Privacy() {
     }
     return () => observer.disconnect();
   }, []);
+  if (compact)
+    return (
+      <aside class="privacy-strip" aria-label="Live privacy check">
+        <Icon name="lock" />
+        <span>
+          Requests to other sites since this page opened:{' '}
+          <strong data-testid="external-count">{available ? count : 'unavailable'}</strong>. Don’t
+          take our word for it: turn on airplane mode and check another message.
+        </span>
+      </aside>
+    );
   return (
     <aside class="privacy-panel" aria-label="Live privacy check">
       <Icon name="lock" />
@@ -57,8 +68,8 @@ export function Privacy() {
             the fuller check. A strict browser policy also blocks external connections.
           </p>
           <p>
-            Messages and images stay in memory. Only app files and your theme choice can be saved.
-            Opening a reporting link is your choice and leaves this app in a new tab.
+            Messages and images stay in memory. Only app files and your theme and text size choices
+            can be saved. Opening a reporting link is your choice and leaves this app in a new tab.
           </p>
         </details>
       </div>

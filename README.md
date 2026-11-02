@@ -23,7 +23,11 @@ They should not need to create an account or hand a private message to a company
 
 ## What it does
 
-- **Paste text, or drop, choose or paste a screenshot.** Screenshots are read on the device with
+- **One tap to a result.** "Paste and check" reads the clipboard when you press it and shows the
+  result straight away. You can also type, or drop, choose or paste a screenshot. Once installed on
+  Android, you can share a message to the app from your messages app. The service worker answers
+  that share on the device, and the share target is declared only after the worker is active.
+  Screenshots are read on the device with
   Tesseract (self-hosted, loaded only when an image is first used). The recognised text appears in
   an editable box before anything is checked. QR codes in images are decoded with jsQR and the
   link is added without being opened.
@@ -31,25 +35,32 @@ They should not need to create an account or hand a private message to a company
   (which says in words that it does not mean the message is safe). If most of the message is in a
   writing system the wording checks do not read, the result says "We could not judge the wording"
   instead of guessing. Link checks still run.
-- **Every finding points at the exact words.** Highlights and findings are linked both ways and
-  reachable by keyboard, with a plain-language reason for each.
+- **The result takes over the screen,** with the outcome and the next step first. On a phone, the
+  two things you may need next stay under your thumb.
+- **Every finding points at the exact words.** Nearby clues merge into readable phrases. Highlights
+  and findings are linked both ways and reachable by keyboard, with a plain-language reason for each.
+- **Three quick questions when the wording settles nothing.** Does it ask for a code, a password or
+  card details? For money? To open a link, call a number or install something? Any "yes" or "not
+  sure" gives specific advice for that request, with no AI and nothing uploaded.
 - **A link inspector** shows the real registrable domain, and flags lookalikes of known brands,
   mixed alphabets, encoded (punycode) hosts, raw IP addresses, `name@host` tricks, link shorteners,
   plain HTTP and a short list of risky endings. Message links are never rendered as clickable
   anchors.
 - **A safe next step** that fits the pattern (for example, open the courier's app yourself).
-- **"Already clicked or paid?"** Pick what happened and your region to get ordered steps, an honest
-  note that money may not come back, a warning about "recovery" scammers who charge a fee, and
+- **"Already clicked or paid?"** Pick everything that happened to get one checklist, most urgent
+  first, with progress you can tick off. It builds a summary to copy or print for your bank or the
+  police. You also get an honest note that money may not come back, a warning about "recovery" scammers who charge a fee, and
   reporting routes (US, UK, Canada, China, elsewhere), each with its source and the date it was
   last checked. It does not replace emergency services.
 - **"Ask someone you trust":** builds a note to copy with emails, phone numbers and long digit runs
   removed and links made unclickable. It tells the reader to check it first, because names are not
-  removed. The app only uses the clipboard and sends nothing.
+  removed. You send it with your device's share sheet or by copying it. The app itself sends nothing.
+- **Larger text** with one button, plus dark and light themes.
 - **Provable privacy.** A strict Content Security Policy blocks every request to another site. A
   live panel counts requests to other sites since the page opened, using the browser's
   PerformanceObserver. You can verify it yourself with the browser's Network tab or airplane mode.
   The message is held in memory only: never in storage, the address bar or history. Only the theme
-  choice may be stored.
+  and text size choices may be stored.
 
 ## How it differs from uploading checkers
 
@@ -80,15 +91,15 @@ subpath is fine.
 ```bash
 npm test             # vitest: engine rules, spans, negation, genuine messages, redaction, adversarial input
 npm run build
-npm run test:e2e     # Playwright against the built app (npx playwright install chromium once)
+npm run test:e2e     # Playwright against the built app, in Chromium, Firefox and WebKit
 npm run eval:dev     # development half of the corpora, for tuning
 npm run eval         # held-out half; writes docs/EVALUATION.md and docs/evaluation.json
 npm run screenshots  # writes docs/screenshots
 ```
 
-The end-to-end tests cover the paste flow with highlights, image OCR (including a browser without
-SIMD), a QR code in an image, the recovery flow, reloading offline through the service worker, zero
-requests to other sites, no sideways scrolling at 320 px, HTML in a message shown as text, and
+The end-to-end tests cover the paste flow with highlights, one-tap paste, the three questions, image
+OCR (including a browser without SIMD), a QR code in an image, the recovery checklist and summary, a
+shared message answered by the service worker, reloading offline, zero requests to other sites, no sideways scrolling at 320 px, HTML in a message shown as text, and
 message links never rendered as anchors.
 
 ## Evaluation
@@ -99,11 +110,11 @@ All corpus numbers come from `docs/evaluation.json`; `docs/EVALUATION.md` has th
 60 scam and 60 genuine messages in modern wording, many of them deliberately hard. We scored them
 once and changed nothing afterward. They are synthetic, not real user messages.
 
-| | Count |
-| --- | --- |
+|                                                      | Count   |
+| ---------------------------------------------------- | ------- |
 | Scams flagged "strong signs" or "some warning signs" | 30 / 60 |
-| Scams flagged "strong signs" | 12 / 60 |
-| Genuine messages flagged | 3 / 60 |
+| Scams flagged "strong signs"                         | 12 / 60 |
+| Genuine messages flagged                             | 3 / 60  |
 
 So about half of those scams got "no known signs". That is why the result never says "safe", and
 why every outcome tells people to check for themselves.
@@ -116,21 +127,21 @@ Intervals are Wilson 95%.
 
 UCI SMS Spam Collection, held-out half (2012; its "spam" includes ordinary marketing):
 
-| | Count | Rate (95% interval) |
-| --- | --- | --- |
-| Genuine messages flagged "strong signs" | 1 / 2,434 | 0.04% (0.01 to 0.23%) |
-| Genuine messages flagged strong or caution | 4 / 2,434 | 0.16% (0.06 to 0.42%) |
-| Spam flagged "strong signs" | 45 / 360 | 12.50% (9.47 to 16.32%) |
-| Spam flagged strong or caution | 160 / 360 | 44.44% (39.40 to 49.61%) |
+|                                            | Count     | Rate (95% interval)      |
+| ------------------------------------------ | --------- | ------------------------ |
+| Genuine messages flagged "strong signs"    | 1 / 2,434 | 0.04% (0.01 to 0.23%)    |
+| Genuine messages flagged strong or caution | 4 / 2,434 | 0.16% (0.06 to 0.42%)    |
+| Spam flagged "strong signs"                | 45 / 360  | 12.50% (9.47 to 16.32%)  |
+| Spam flagged strong or caution             | 160 / 360 | 44.44% (39.40 to 49.61%) |
 
 SMS Phishing Dataset (Mishra and Soni, 2022, CC BY 4.0), held-out half, with rows already in the UCI
 collection removed:
 
-| | Count | Rate (95% interval) |
-| --- | --- | --- |
-| Genuine messages flagged strong or caution | 1 / 273 | 0.37% (0.06 to 2.05%) |
-| Smishing flagged "strong signs" | 48 / 160 | 30.00% (23.44 to 37.50%) |
-| Smishing flagged strong or caution | 81 / 160 | 50.62% (42.95 to 58.27%) |
+|                                            | Count    | Rate (95% interval)      |
+| ------------------------------------------ | -------- | ------------------------ |
+| Genuine messages flagged strong or caution | 1 / 273  | 0.37% (0.06 to 2.05%)    |
+| Smishing flagged "strong signs"            | 48 / 160 | 30.00% (23.44 to 37.50%) |
+| Smishing flagged strong or caution         | 81 / 160 | 50.62% (42.95 to 58.27%) |
 
 **A model we rejected.** We trained a small on-device word model on the development half.
 Cross-validated there, it flagged 82% of spam and smishing with 0.5% false alarms. On 30 modern

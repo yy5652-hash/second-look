@@ -27,7 +27,7 @@ export function watchExternal(page: Page) {
 
 export async function check(page: Page, text: string) {
   await page.getByLabel('Paste the message here').fill(text);
-  await page.getByRole('button', { name: /Take a second look/ }).click();
+  await page.getByRole('button', { name: /Check this message/ }).click();
   await expect(page.locator('#result')).toBeVisible();
 }
 

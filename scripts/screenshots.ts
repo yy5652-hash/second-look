@@ -55,24 +55,40 @@ async function main() {
     };
     const analyse = async (page: import('@playwright/test').Page, text: string) => {
       await page.getByLabel('Paste the message here').fill(text);
-      await page.getByRole('button', { name: /Take a second look/ }).click();
+      await page.getByRole('button', { name: /Check this message/ }).click();
       await page.locator('#result').waitFor();
     };
     await shot('desktop-light', { width: 1280, height: 900, scheme: 'light' }, async () => {});
     await shot('mobile', { width: 390, height: 844, scheme: 'light' }, async () => {}, true);
     await shot('dark', { width: 1280, height: 900, scheme: 'dark' }, async (page) => {
       await analyse(page, SCAM);
-      await page.locator('#result').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    });
+    await shot('result-desktop', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
+      await analyse(page, SCAM);
+    });
+    await shot('result-mobile', { width: 390, height: 844, scheme: 'light' }, async (page) => {
+      await analyse(page, SCAM);
+    });
+    await shot('ask-back', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
+      await page.getByRole('button', { name: /Dentist reminder/ }).click();
+      await page
+        .locator('.askback')
+        .getByRole('group', { name: /pay or send money/ })
+        .getByText('Yes', { exact: true })
+        .click();
     });
     await shot('result-highlights', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
       await analyse(page, SCAM);
-      await page.locator('#result').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page.locator('.evidence-grid').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page.locator('mark').nth(1).click();
+      await page.locator('.evidence-grid').evaluate((el) => el.scrollIntoView({ block: 'start' }));
     });
     await shot('recovery-flow', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
-      await page.locator('#recovery > summary').click();
-      await page.getByLabel('What happened?').selectOption({ index: 5 });
-      await page.getByLabel('Your region').selectOption('UK');
-      await page.locator('#recovery').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page.locator('.recovery-entry').click();
+      await page.getByRole('checkbox', { name: 'I paid by card' }).check();
+      await page.getByRole('checkbox', { name: 'I only clicked a link' }).check();
+      await page.locator('ol.steps li').first().getByRole('checkbox').check();
+      await page.locator('.plan').evaluate((el) => el.scrollIntoView({ block: 'start' }));
     });
     await browser.close();
     console.log(`Screenshots written to ${out}`);

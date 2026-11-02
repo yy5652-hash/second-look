@@ -98,13 +98,13 @@ export function How() {
       <h2>Privacy you can check</h2>
       <p>
         No account, analytics, server analysis or runtime AI service. Messages, images and results
-        stay in memory. Clear removes them; reopening the page starts empty. Your browser may still
-        manage its own clipboard or operating-system snapshots.
+        stay in memory. Checking another message removes them; reopening the page starts empty. Your
+        browser may still manage its own clipboard or operating-system snapshots.
       </p>
       <p>
-        Only the app files, OCR files and optional theme preference can be stored. App and OCR
-        downloads come from the same site. A host can see requests for those files, but the message
-        is never attached. Reporting links only open when you choose them.
+        Only the app files, OCR files and optional theme and text size preferences can be stored.
+        App and OCR downloads come from the same site. A host can see requests for those files, but
+        the message is never attached. Reporting links only open when you choose them.
       </p>
       <p>
         After the offline-ready notice appears, text checks and recovery steps work without a

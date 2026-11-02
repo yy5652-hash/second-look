@@ -2,7 +2,10 @@ import { useState } from 'preact/hooks';
 import evaluation from '../../docs/evaluation.json';
 import type { Analysis } from '../engine/analyze';
 import { trustNote } from '../engine/redact';
+import { AskBack } from './AskBack';
+import { cluePieces } from './clues';
 import { Icon } from './icons';
+import { Privacy } from './Privacy';
 export const outcomeNames = {
   stop: 'Strong signs of a scam',
   caution: 'Some warning signs',
@@ -18,124 +21,135 @@ export function focusId(id: string) {
     behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
   });
 }
-export function Result({ result, text }: { result: Analysis; text: string }) {
+export function Result({
+  result,
+  text,
+  onAnother,
+  onEdit,
+  onRecovery,
+}: {
+  result: Analysis;
+  text: string;
+  onAnother: () => void;
+  onEdit: () => void;
+  onRecovery: () => void;
+}) {
   const [share, setShare] = useState(false),
-    [copyStatus, setCopyStatus] = useState('');
-  const { findings } = result;
-  const boundaries = [
-    ...new Set([
-      0,
-      text.length,
-      ...findings.flatMap((f) => f.spans.flatMap((s) => [s.start, s.end])),
-    ]),
-  ].sort((a, b) => a - b);
-  const pieces = boundaries.slice(0, -1).map((start, i) => ({
-    start,
-    end: boundaries[i + 1],
-    ids: findings
-      .filter((f) => f.spans.some((s) => s.start <= start && s.end >= boundaries[i + 1]))
-      .map((f) => f.id),
-  }));
-  // Neighbouring highlighted pieces read as one phrase, so show one highlight with all its clues.
-  const segments: typeof pieces = [];
-  for (const piece of pieces) {
-    const last = segments[segments.length - 1];
-    if (last && last.ids.length && piece.ids.length)
-      segments[segments.length - 1] = {
-        start: last.start,
-        end: piece.end,
-        ids: findings
-          .map((f) => f.id)
-          .filter((id) => last.ids.includes(id) || piece.ids.includes(id)),
-      };
-    else segments.push(piece);
-  }
-  const firstEvidence = (id: string) =>
-    `evidence-${segments.find((s) => s.ids.includes(id))?.start}`;
+    [copyStatus, setCopyStatus] = useState(''),
+    [active, setActive] = useState<string[] | null>(null);
+  const { findings, level } = result;
+  const pieces = cluePieces(text, findings);
+  const note = trustNote(text);
+  const undecided = level === 'none' || level === 'unsupported' || level === 'too_short';
+  const isActive = (ids: string[]) => !!active && ids.some((id) => active.includes(id));
+  const showFinding = (ids: string[]) => {
+    setActive(ids);
+    focusId(`finding-${ids[0]}`);
+  };
+  const showWords = (id: string) => {
+    setActive([id]);
+    focusId(`clue-${pieces.find((p) => p.ids.includes(id))?.start}`);
+  };
   return (
-    <section id="result" class="result" tabIndex={-1} aria-labelledby="outcome-title">
-      <div class={`outcome ${result.level}`}>
-        <Icon
-          name={
-            result.level === 'too_short' || result.level === 'unsupported' ? 'help' : result.level
-          }
-        />
+    <section id="result" class="result" aria-labelledby="outcome-title">
+      <h1 class="sr-only">Your result</h1>
+      <div class="result-bar">
+        <button class="secondary" onClick={onAnother}>
+          <Icon name="back" />
+          Check another message
+        </button>
+        <button class="urgent" onClick={onRecovery}>
+          Already clicked or paid?
+        </button>
+      </div>
+      <div class={`outcome ${level}`}>
+        <span class="outcome-icon">
+          <Icon name={level === 'too_short' || level === 'unsupported' ? 'help' : level} />
+        </span>
         <div>
-          <p class="eyebrow">Your second look</p>
-          <h2 id="outcome-title">{outcomeNames[result.level]}</h2>
+          <h2 id="outcome-title" tabIndex={-1}>
+            {outcomeNames[level]}
+          </h2>
           <p>{result.summary}</p>
-          {(result.level === 'none' || result.level === 'unsupported') && (
+          {(level === 'none' || level === 'unsupported') && (
             <strong>This does not mean the message is safe.</strong>
           )}
-          {result.level === 'none' && evaluation.blind && (
-            <p class="small">
+          {level === 'none' && evaluation.blind && (
+            <p class="small outcome-note">
               In our blind test, {evaluation.blind.scam.none.count} of{' '}
-              {evaluation.blind.scam.none.total} scam messages also got this result. If it asks for
-              money, a code or a login, check with the sender another way first.
+              {evaluation.blind.scam.none.total} scam messages also got this result.
             </p>
           )}
         </div>
       </div>
-      {result.level !== 'too_short' && (
+      {undecided && <AskBack />}
+      {level !== 'too_short' && (
         <>
           <div class="next-step">
-            <span class="step-tag">Your next step</span>
+            <span class="step-tag">Do this next</span>
             <h3>{result.scenario.nextStep}</h3>
             <p>{result.scenario.name}</p>
           </div>
           <div class="evidence-grid">
             <div>
-              <h3>The message, with clues</h3>
+              <h3>The message</h3>
               <p class="small muted">
-                Select a highlighted phrase to see why it matters. Message links cannot be opened
-                here.
+                {findings.length
+                  ? 'Select highlighted words to see why they matter. Links in the message can’t be opened here.'
+                  : 'Links in the message can’t be opened here.'}
               </p>
-              <div class="message-evidence" dir="auto">
-                {segments.map((segment) =>
-                  segment.ids.length ? (
-                    <span class="evidence-piece">
-                      <mark id={`evidence-${segment.start}`} tabIndex={-1}>
-                        {text.slice(segment.start, segment.end)}
-                      </mark>
-                      <span class="evidence-refs">
-                        {segment.ids.map((id) => (
-                          <button
-                            class="evidence-ref"
-                            aria-label={`Explain “${text.slice(segment.start, segment.end)}”: ${findings.find((f) => f.id === id)!.title}`}
-                            aria-controls={`finding-${id}`}
-                            onClick={() => focusId(`finding-${id}`)}
-                          >
-                            {findings.findIndex((f) => f.id === id) + 1}
-                          </button>
-                        ))}
-                      </span>
-                    </span>
+              <div class={`message-evidence ${active ? 'has-active' : ''}`} dir="auto">
+                {pieces.map((piece) =>
+                  piece.ids.length ? (
+                    <mark
+                      id={`clue-${piece.start}`}
+                      role="button"
+                      tabIndex={0}
+                      aria-pressed={isActive(piece.ids)}
+                      class={isActive(piece.ids) ? 'active' : ''}
+                      onClick={() => showFinding(piece.ids)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          showFinding(piece.ids);
+                        }
+                      }}
+                    >
+                      {text.slice(piece.start, piece.end)}
+                    </mark>
                   ) : (
-                    text.slice(segment.start, segment.end)
+                    text.slice(piece.start, piece.end)
                   ),
                 )}
               </div>
+              <button class="text-button" onClick={onEdit}>
+                Edit this message
+              </button>
             </div>
             <div>
-              <h3>{findings.length ? 'What made us pause' : 'What we found'}</h3>
+              <h3>
+                {findings.length
+                  ? `${findings.length} ${findings.length === 1 ? 'warning sign' : 'warning signs'}`
+                  : 'What we found'}
+              </h3>
               {findings.length ? (
-                <ol class="finding-list">
-                  {findings.map((finding, i) => (
-                    <li id={`finding-${finding.id}`} tabIndex={-1}>
-                      <div class="finding-title">
-                        <span class="number">{i + 1}</span>
-                        <h4>{finding.title}</h4>
-                      </div>
+                <ul class="finding-list">
+                  {findings.map((finding) => (
+                    <li
+                      id={`finding-${finding.id}`}
+                      tabIndex={-1}
+                      class={active?.includes(finding.id) ? 'active' : ''}
+                    >
+                      <h4>{finding.title}</h4>
                       <p>{finding.explanation}</p>
-                      <button
-                        class="text-button"
-                        onClick={() => focusId(firstEvidence(finding.id))}
-                      >
-                        Show these words <Icon name="arrow" />
-                      </button>
+                      {finding.spans.length > 0 && (
+                        <button class="text-button" onClick={() => showWords(finding.id)}>
+                          Show these words <Icon name="arrow" />
+                        </button>
+                      )}
                     </li>
                   ))}
-                </ol>
+                </ul>
               ) : (
                 <p>
                   None of our known warning patterns stood out. If the message asks you to act,
@@ -147,13 +161,13 @@ export function Result({ result, text }: { result: Analysis; text: string }) {
           {result.links.length > 0 && (
             <section class="link-inspector">
               <h3>Where the links really go</h3>
-              <p>
-                Read the main address, not just a familiar word at the front. We did not open or
-                contact these sites.
+              <p class="muted">
+                Read the main address, not a familiar word at the front. We did not open or contact
+                these sites.
               </p>
               {result.links.map((link) => (
                 <div class="link-card">
-                  <span class="small muted">Main address (registrable domain)</span>
+                  <span class="small muted">Main address</span>
                   <strong class="domain" dir="ltr">
                     {link.domain}
                   </strong>
@@ -177,51 +191,64 @@ export function Result({ result, text }: { result: Analysis; text: string }) {
               ))}
             </section>
           )}
-          <div class="notes">
-            {result.notes.map((note) => (
-              <p>{note}</p>
-            ))}
-          </div>
+          {result.notes.length > 0 && (
+            <div class="notes">
+              {result.notes.map((line) => (
+                <p>{line}</p>
+              ))}
+            </div>
+          )}
           <div class="share">
             <button class="secondary" onClick={() => setShare(!share)} aria-expanded={share}>
-              <Icon name="copy" />
+              <Icon name="send" />
               Ask someone you trust
             </button>
             {share && (
               <div class="share-panel">
-                <h3>Read this note before you copy it</h3>
+                <h3>Read this note before you send it</h3>
                 <p>
                   Emails, phone numbers and long digit runs are removed. Links are made unclickable.{' '}
-                  <strong>Names and other personal details are not removed.</strong> Edit or remove
-                  them after pasting if needed.
+                  <strong>Names and other personal details are not removed.</strong> Edit them after
+                  pasting if needed.
                 </p>
                 <label for="trust-note">Note to share</label>
-                <textarea id="trust-note" readOnly value={trustNote(text)} rows={7} />
-                <button
-                  class="primary"
-                  onClick={async () => {
-                    try {
-                      await navigator.clipboard.writeText(trustNote(text));
-                      setCopyStatus(
-                        'Copied. You choose where to share it. This app sends nothing.',
-                      );
-                    } catch {
-                      (document.getElementById('trust-note') as HTMLTextAreaElement)?.select();
-                      setCopyStatus(
-                        'Clipboard is unavailable. The note is selected; use your device’s Copy command.',
-                      );
-                    }
-                  }}
-                >
-                  Copy note
-                </button>
+                <textarea id="trust-note" readOnly value={note} rows={7} />
+                <div class="button-row">
+                  {'share' in navigator && (
+                    <button
+                      class="primary"
+                      onClick={() => navigator.share({ text: note }).catch(() => {})}
+                    >
+                      <Icon name="send" />
+                      Send it
+                    </button>
+                  )}
+                  <button
+                    class="secondary"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(note);
+                        setCopyStatus('Copied. You choose where to share it.');
+                      } catch {
+                        (document.getElementById('trust-note') as HTMLTextAreaElement)?.select();
+                        setCopyStatus(
+                          'Clipboard is unavailable. The note is selected; use your device’s Copy command.',
+                        );
+                      }
+                    }}
+                  >
+                    <Icon name="copy" />
+                    Copy note
+                  </button>
+                </div>
                 <p role="status">{copyStatus}</p>
-                <p class="small">Clipboard only. Second Look sends nothing.</p>
+                <p class="small muted">Second Look sends nothing. You pick who gets it.</p>
               </div>
             )}
           </div>
         </>
       )}
+      <Privacy compact />
     </section>
   );
 }

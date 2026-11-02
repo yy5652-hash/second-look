@@ -7,16 +7,29 @@ import { Icon } from './ui/icons';
 import { Privacy } from './ui/Privacy';
 import { Recovery } from './ui/Recovery';
 import { How } from './ui/How';
-import { Result, outcomeNames, focusId } from './ui/Result';
+import { Result, outcomeNames } from './ui/Result';
 import './style.css';
 type InstallEvent = Event & {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: string }>;
 };
+type View = 'check' | 'result' | 'how' | 'recovery';
+const stored = (key: string) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+const store = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
+};
 function App() {
   const [text, setText] = useState(''),
     [result, setResult] = useState<Analysis | null>(null),
-    [page, setPage] = useState<'check' | 'how'>('check');
+    [view, setView] = useState<View>('check');
   const [notice, setNotice] = useState(''),
     [busy, setBusy] = useState(false),
     [progress, setProgress] = useState(''),
@@ -26,21 +39,21 @@ function App() {
     [update, setUpdate] = useState(false),
     [install, setInstall] = useState<InstallEvent | null>(null);
   const [dark, setDark] = useState(() => {
+    const theme = stored('second-look-theme');
+    if (theme) return theme === 'dark';
     try {
-      return (
-        localStorage.getItem('second-look-theme') === 'dark' ||
-        (!localStorage.getItem('second-look-theme') &&
-          matchMedia('(prefers-color-scheme: dark)').matches)
-      );
+      return matchMedia('(prefers-color-scheme: dark)').matches;
     } catch {
       return false;
     }
   });
+  const [large, setLarge] = useState(() => stored('second-look-text') === 'large');
   const fileInput = useRef<HTMLInputElement>(null),
     textarea = useRef<HTMLTextAreaElement>(null),
     controller = useRef<AbortController | null>(null),
     job = useRef(0),
     updateSW = useRef<((reload?: boolean) => Promise<void>) | null>(null);
+  const shown: View = view === 'result' && !result ? 'check' : view;
   const clear = () => {
     job.current++;
     controller.current?.abort();
@@ -53,40 +66,27 @@ function App() {
     setProgress('');
     if (fileInput.current) fileInput.current.value = '';
   };
+  // Moves to a view with the page at the top. History holds only the view's name, never the message.
+  const go = (next: View, focus = next === 'result' ? 'outcome-title' : 'main') => {
+    setView(next);
+    history.pushState({ view: next }, '');
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: 'instant' });
+      document.getElementById(focus)?.focus({ preventScroll: true });
+    });
+  };
+  const run = (message: string) => {
+    setResult(analyze(message));
+    go('result');
+  };
   useEffect(() => {
     document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    try {
-      localStorage.setItem('second-look-theme', dark ? 'dark' : 'light');
-    } catch {}
+    store('second-look-theme', dark ? 'dark' : 'light');
   }, [dark]);
   useEffect(() => {
-    const online = () => setOffline(!navigator.onLine),
-      hide = () => clear();
-    const installing = (event: Event) => {
-      event.preventDefault();
-      setInstall(event as InstallEvent);
-    };
-    window.addEventListener('online', online);
-    window.addEventListener('offline', online);
-    window.addEventListener('pagehide', hide);
-    window.addEventListener('beforeinstallprompt', installing);
-    updateSW.current = registerSW({
-      immediate: true,
-      onOfflineReady: () => setReady(true),
-      onNeedRefresh: () => setUpdate(true),
-      onRegisterError: () =>
-        setNotice(
-          'Offline setup did not finish. Text checks still work while this page is open. Reload when connected to try again.',
-        ),
-    });
-    if ('serviceWorker' in navigator) void navigator.serviceWorker.ready.then(() => setReady(true));
-    return () => {
-      window.removeEventListener('online', online);
-      window.removeEventListener('offline', online);
-      window.removeEventListener('pagehide', hide);
-      window.removeEventListener('beforeinstallprompt', installing);
-    };
-  }, []);
+    document.documentElement.dataset.text = large ? 'large' : 'normal';
+    store('second-look-text', large ? 'large' : 'normal');
+  }, [large]);
   const change = (value: string) => {
     setText(value.slice(0, MAX_INPUT));
     setResult(null);
@@ -143,10 +143,83 @@ function App() {
       if (fileInput.current) fileInput.current.value = '';
     }
   };
-  const go = (next: 'check' | 'how') => {
-    setPage(next);
-    requestAnimationFrame(() => focusId('main'));
+  const pasteAndCheck = async () => {
+    try {
+      const pasted = await navigator.clipboard.readText();
+      if (pasted.trim()) {
+        change(pasted);
+        run(pasted.slice(0, MAX_INPUT));
+        return;
+      }
+      for (const item of await navigator.clipboard.read()) {
+        const type = item.types.find((t) => t.startsWith('image/'));
+        if (type) {
+          const blob = await item.getType(type);
+          await image(new File([blob], 'clipboard-image', { type }));
+          return;
+        }
+      }
+      setNotice('Your clipboard is empty. Copy the message first, or type it in the box.');
+    } catch {
+      setNotice('Your browser did not allow that. Tap the box, then choose Paste.');
+    }
+    textarea.current?.focus();
   };
+  const takeShared = async () => {
+    history.replaceState(null, '', location.pathname);
+    const worker = (await navigator.serviceWorker.ready).active;
+    navigator.serviceWorker.addEventListener(
+      'message',
+      (event) => {
+        if (event.data?.type !== 'SHARED') return;
+        const shared = event.data.shared as { text: string; image?: File } | null;
+        if (shared?.image) void image(shared.image);
+        else if (shared?.text.trim()) {
+          change(shared.text);
+          run(shared.text.slice(0, MAX_INPUT));
+        } else setNotice('The shared message did not arrive. Please paste it here instead.');
+      },
+      { once: true },
+    );
+    worker?.postMessage({ type: 'TAKE_SHARED' });
+  };
+  useEffect(() => {
+    const online = () => setOffline(!navigator.onLine),
+      hide = () => clear(),
+      back = (event: PopStateEvent) => setView(event.state?.view ?? 'check');
+    const installing = (event: Event) => {
+      event.preventDefault();
+      setInstall(event as InstallEvent);
+    };
+    window.addEventListener('online', online);
+    window.addEventListener('offline', online);
+    window.addEventListener('pagehide', hide);
+    window.addEventListener('popstate', back);
+    window.addEventListener('beforeinstallprompt', installing);
+    updateSW.current = registerSW({
+      immediate: true,
+      onOfflineReady: () => setReady(true),
+      onNeedRefresh: () => setUpdate(true),
+      onRegisterError: () =>
+        setNotice(
+          'Offline setup did not finish. Text checks still work while this page is open. Reload when connected to try again.',
+        ),
+    });
+    if ('serviceWorker' in navigator)
+      void navigator.serviceWorker.ready.then(() => {
+        setReady(true);
+        // The worker is now there to answer shares, so an install may offer them.
+        document.querySelector('link[rel="manifest"]')?.setAttribute('href', 'share.webmanifest');
+      });
+    if (new URLSearchParams(location.search).has('shared')) void takeShared();
+    return () => {
+      window.removeEventListener('online', online);
+      window.removeEventListener('offline', online);
+      window.removeEventListener('pagehide', hide);
+      window.removeEventListener('popstate', back);
+      window.removeEventListener('beforeinstallprompt', installing);
+    };
+  }, []);
   return (
     <>
       <a class="skip" href="#main">
@@ -157,16 +230,22 @@ function App() {
           <span class="brand-symbol">
             <Icon name="eye" />
           </span>
-          <span>
-            Second Look<span class="wordmark-caption">A moment before you act.</span>
-          </span>
+          <span class="wordmark-name">Second Look</span>
         </button>
         <nav aria-label="Main">
-          <button class="nav-button" onClick={() => go(page === 'check' ? 'how' : 'check')}>
-            {page === 'check' ? 'How this works' : 'Back to check'}
+          <button class="nav-button" onClick={() => go(shown === 'how' ? 'check' : 'how')}>
+            {shown === 'how' ? 'Back to check' : 'How this works'}
           </button>
           <button
-            class="theme-button"
+            class="round-button text-size"
+            aria-label="Larger text"
+            aria-pressed={large}
+            onClick={() => setLarge(!large)}
+          >
+            A<span>A</span>
+          </button>
+          <button
+            class="round-button"
             aria-label={dark ? 'Use light theme' : 'Use dark theme'}
             onClick={() => setDark(!dark)}
           >
@@ -174,20 +253,33 @@ function App() {
           </button>
         </nav>
       </header>
-      <main id="main" tabIndex={-1}>
-        {page === 'how' ? (
-          <How />
-        ) : (
+      <main id="main" tabIndex={-1} class={`view-${shown}`}>
+        <p class="sr-only" role="status" aria-live="polite">
+          {shown === 'result' && result ? `${outcomeNames[result.level]}. ${result.summary}` : ''}
+        </p>
+        {shown === 'how' && <How />}
+        {shown === 'recovery' && <Recovery message={text} />}
+        {shown === 'result' && result && (
+          <Result
+            key={text}
+            result={result}
+            text={text}
+            onAnother={() => {
+              clear();
+              go('check', 'message');
+            }}
+            onEdit={() => go('check', 'message')}
+            onRecovery={() => go('recovery', 'recovery-title')}
+          />
+        )}
+        {shown === 'check' && (
           <>
             <section class="intro">
-              <p class="eyebrow">
-                <span class="small-line" /> A little pause. A clearer next step.
+              <h1>Is this message a scam?</h1>
+              <p>
+                Paste it or add a screenshot. See the warning signs and what to do next. It all
+                happens on this device.
               </p>
-              <h1>
-                Not sure about
-                <br class="desktop-break" /> that message?
-              </h1>
-              <p>Let’s take a second look, together.</p>
             </section>
             <section
               class="input-card card"
@@ -206,7 +298,7 @@ function App() {
                 value={text}
                 disabled={busy}
                 maxLength={MAX_INPUT}
-                rows={6}
+                rows={4}
                 spellcheck={false}
                 autoComplete="off"
                 autoCorrect="off"
@@ -228,29 +320,6 @@ function App() {
                   }
                 }}
               />
-              <div class="input-tools">
-                <button
-                  class="text-button"
-                  disabled={busy}
-                  onClick={() => fileInput.current?.click()}
-                >
-                  <Icon name="image" />
-                  Use a screenshot
-                </button>
-                <span class="small muted">{text.length.toLocaleString()} / 10,000</span>
-              </div>
-              <input
-                class="sr-only"
-                type="file"
-                ref={fileInput}
-                accept="image/png,image/jpeg,image/webp,image/bmp"
-                aria-label="Choose an image"
-                tabIndex={-1}
-                onChange={(e) => void image(e.currentTarget.files?.[0])}
-              />
-              <p id="input-help" class="small muted">
-                Or drop or paste an image. English text checks. Any language’s links.
-              </p>
               <p id="input-notice" role="status" class={notice ? 'notice' : ''}>
                 {notice}
               </p>
@@ -277,30 +346,53 @@ function App() {
                   </button>
                 </div>
               )}
-              <button
-                class="primary check-button"
-                disabled={busy || !text.trim()}
-                onClick={() => {
-                  const r = analyze(text);
-                  setResult(r);
-                  requestAnimationFrame(() => focusId('result'));
-                }}
-              >
-                Take a second look
-                <Icon name="arrow" />
-              </button>
-              <div class="input-reassurance">
-                <Icon name="lock" />
-                <span>No account. No upload. Just this device.</span>
+              {text.trim() ? (
+                <button class="primary check-button" disabled={busy} onClick={() => run(text)}>
+                  Check this message
+                  <Icon name="arrow" />
+                </button>
+              ) : (
+                <button
+                  class="primary check-button"
+                  disabled={busy}
+                  onClick={() => void pasteAndCheck()}
+                >
+                  Paste and check
+                  <Icon name="paste" />
+                </button>
+              )}
+              <div class="input-tools">
+                <button
+                  class="text-button"
+                  disabled={busy}
+                  onClick={() => fileInput.current?.click()}
+                >
+                  <Icon name="image" />
+                  Use a screenshot
+                </button>
+                {text ? (
+                  <button class="text-button" onClick={clear}>
+                    Clear message
+                  </button>
+                ) : (
+                  <span class="small muted">Or drop an image here</span>
+                )}
               </div>
+              <input
+                class="sr-only"
+                type="file"
+                ref={fileInput}
+                accept="image/png,image/jpeg,image/webp,image/bmp"
+                aria-label="Choose an image"
+                tabIndex={-1}
+                onChange={(e) => void image(e.currentTarget.files?.[0])}
+              />
+              <p id="input-help" class="small muted">
+                No account. Nothing uploaded. Wording checks are in English; links in any language.
+              </p>
             </section>
-            <p class="sr-only" role="status" aria-live="polite">
-              {result ? `${outcomeNames[result.level]}. ${result.summary}` : ''}
-            </p>
-            {result && <Result key={text} result={result} text={text} />}
-            <details class="examples">
-              <summary>Just exploring? Try an example</summary>
-              <p class="small muted">Made-up messages. All sample links use reserved domains.</p>
+            <section class="examples" aria-labelledby="examples-title">
+              <h2 id="examples-title">Try an example</h2>
               <div class="example-buttons">
                 {examples.map((example, i) => (
                   <button
@@ -309,7 +401,7 @@ function App() {
                     onClick={() => {
                       change(example.text);
                       setImageNote('');
-                      textarea.current?.focus();
+                      run(example.text);
                     }}
                   >
                     {example.name}
@@ -317,52 +409,33 @@ function App() {
                   </button>
                 ))}
               </div>
-            </details>
-            <details class="recovery card" id="recovery">
-              <summary>
-                <span class="recovery-summary">
-                  <Icon name="help" />
-                  <span>
-                    <strong>Already clicked or paid?</strong>
-                    <span>There are steps you can take now.</span>
-                  </span>
-                </span>
-                <span aria-hidden="true" class="plus">
-                  +
-                </span>
-              </summary>
-              <Recovery />
-            </details>
+              <p class="small muted">Made-up messages. All sample links use reserved domains.</p>
+            </section>
+            <button class="recovery-entry card" onClick={() => go('recovery', 'recovery-title')}>
+              <span>
+                <strong>Already clicked or paid?</strong>
+                <span>Get a checklist, most urgent first, and a summary for your bank.</span>
+              </span>
+              <Icon name="arrow" />
+            </button>
             <div class="principles">
               <div>
-                <span>01</span>
-                <h3>Your words stay yours.</h3>
-                <p>The message never leaves your device.</p>
+                <Icon name="shield" />
+                <h3>Stays on your device</h3>
+                <p>The message is checked right here. It isn’t sent anywhere.</p>
               </div>
               <div>
-                <span>02</span>
-                <h3>Clues, not guesses.</h3>
-                <p>See the exact words behind every finding.</p>
+                <Icon name="words" />
+                <h3>Shows you the words</h3>
+                <p>Every warning sign points to the exact words behind it.</p>
               </div>
               <div>
-                <span>03</span>
-                <h3>A next step, always.</h3>
-                <p>Know how to check, or what to do next.</p>
+                <Icon name="step" />
+                <h3>Tells you what to do</h3>
+                <p>You always get a safe next step, even when nothing stands out.</p>
               </div>
             </div>
             <Privacy />
-            <div class="clear-row">
-              <button
-                class="text-button"
-                onClick={() => {
-                  clear();
-                  textarea.current?.focus();
-                }}
-              >
-                Clear message and results
-              </button>
-              <span class="small muted">Nothing to sign in to. Nothing to save.</span>
-            </div>
           </>
         )}
       </main>
@@ -382,8 +455,9 @@ function App() {
           <summary>Keep it handy</summary>
           <p>
             Install this app from your browser’s menu. On iPhone or iPad: Share → Add to Home
-            Screen. Text checks work offline once ready; read an image online once to cache its
-            reader.
+            Screen. Once it’s installed on Android, you can share a message to it straight from your
+            messages app. Text checks work offline once ready; read an image online once to cache
+            its reader.
           </p>
           {install && (
             <button

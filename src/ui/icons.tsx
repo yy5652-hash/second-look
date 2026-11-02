@@ -13,6 +13,13 @@ export function Icon({ name, className = '' }: { name: string; className?: strin
     download: 'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
     copy: 'M8 8h13v13H8zM16 8V3H3v13h5',
     close: 'm6 6 12 12M6 18 18 6',
+    back: 'M19 12H5m5-5-5 5 5 5',
+    paste: 'M9 4h6v3H9zM9 5H5v16h14V5h-4M9 13l2 2 4-4',
+    send: 'm3 11 18-8-8 18-2-8ZM11 13l10-10',
+    print: 'M7 8V3h10v5M7 17H3V8h18v9h-4M7 14h10v7H7z',
+    shield: 'M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6ZM9 12l2 2 4-4',
+    words: 'M4 6h16M4 12h10M4 18h13',
+    step: 'M5 12h14m-5-5 5 5-5 5',
   };
   return (
     <svg
