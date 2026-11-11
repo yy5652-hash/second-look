@@ -248,7 +248,7 @@ async function main() {
     '- Corpus: the UCI SMS Spam Collection (5,574 labelled English text messages, CC BY 4.0), downloaded by the script into the git-ignored `data/` folder.',
     '- Split: a deterministic hash of each message puts roughly half in a development set and half in a held-out set. Identical messages always land on the same side.',
     '- Rules were tuned only on the development half and on our own fixtures, and were then frozen.',
-    '- The held-out half has been scored twice. The first run used an earlier, narrower rule set and gave 52 of 160 smishing messages flagged. Those low numbers prompted the broader problem-then-ask rules, tuned on development data only. The tables below are from the second run. Treat them as slightly optimistic, because we knew the first result.',
+    '- The held-out half has been scored twice. The first run used an earlier, narrower rule set and gave 52 of 160 smishing messages flagged. Those low numbers prompted the broader problem-then-ask rules, tuned on development data only. The tables below are from the second run. Treat them as possibly optimistic, because we knew the first result.',
     '- The blind set was written by a separate AI agent that had no access to the rules. It was scored once and no rule changed afterward.',
     '- Intervals are Wilson 95% intervals.',
     '- Caveats: the collection dates from 2012, and its "spam" label includes ordinary marketing, not only scams. The spam catch rate therefore understates or muddies scam detection. The goal was few false alarms on genuine messages.',

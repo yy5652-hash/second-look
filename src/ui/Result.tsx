@@ -3,15 +3,19 @@ import evaluation from '../../docs/evaluation.json';
 import type { Analysis } from '../engine/analyze';
 import { trustNote } from '../engine/redact';
 import { AskBack } from './AskBack';
-import { cluePieces } from './clues';
+import { cluePieces, mergeFindings } from './clues';
 import { Icon } from './icons';
 import { Privacy } from './Privacy';
 export const outcomeNames = {
   stop: 'Strong signs of a scam',
   caution: 'Some warning signs',
-  none: 'No known signs',
+  none: 'Check before you act',
   unsupported: 'We could not judge the wording',
   too_short: 'A little more context, please',
+};
+// The status line under the title. For "none" the title is the action and this is the finding.
+export const outcomeStatus: Partial<Record<keyof typeof outcomeNames, string>> = {
+  none: 'No known signs found',
 };
 export function focusId(id: string) {
   const el = document.getElementById(id);
@@ -36,10 +40,13 @@ export function Result({
 }) {
   const [share, setShare] = useState(false),
     [copyStatus, setCopyStatus] = useState(''),
-    [active, setActive] = useState<string[] | null>(null);
-  const { findings, level } = result;
+    [active, setActive] = useState<string[] | null>(null),
+    [draft, setDraft] = useState<string | null>(null);
+  const { level } = result;
+  const findings = mergeFindings(result.findings);
   const pieces = cluePieces(text, findings);
-  const note = trustNote(text);
+  // The note starts redacted and the person can edit it; copying and sharing use the edited text.
+  const note = draft ?? trustNote(text);
   const undecided = level === 'none' || level === 'unsupported' || level === 'too_short';
   const isActive = (ids: string[]) => !!active && ids.some((id) => active.includes(id));
   const showFinding = (ids: string[]) => {
@@ -67,19 +74,20 @@ export function Result({
           <Icon name={level === 'too_short' || level === 'unsupported' ? 'help' : level} />
         </span>
         <div>
+          {outcomeStatus[level] && <span class="outcome-status">{outcomeStatus[level]}</span>}
           <h2 id="outcome-title" tabIndex={-1}>
             {outcomeNames[level]}
           </h2>
-          <p>{result.summary}</p>
           {(level === 'none' || level === 'unsupported') && (
-            <strong>This does not mean the message is safe.</strong>
+            <strong class="outcome-warning">This does not mean the message is safe.</strong>
           )}
           {level === 'none' && evaluation.blind && (
-            <p class="small outcome-note">
-              In our blind test, {evaluation.blind.scam.none.count} of{' '}
+            <p class="outcome-note">
+              In our synthetic blind test, {evaluation.blind.scam.none.count} of{' '}
               {evaluation.blind.scam.none.total} scam messages also got this result.
             </p>
           )}
+          <p>{result.summary}</p>
         </div>
       </div>
       {undecided && <AskBack />}
@@ -160,10 +168,10 @@ export function Result({
           </div>
           {result.links.length > 0 && (
             <section class="link-inspector">
-              <h3>Where the links really go</h3>
+              <h3>Where the links point</h3>
               <p class="muted">
-                Read the main address, not a familiar word at the front. We did not open or contact
-                these sites.
+                Read the main address, not a familiar word at the front. This is the address written
+                in the link. We did not open it or follow any redirect.
               </p>
               {result.links.map((link) => (
                 <div class="link-card">
@@ -183,8 +191,8 @@ export function Result({
                     </ul>
                   ) : (
                     <p>
-                      This is who the link really goes to. An ordinary-looking address does not
-                      prove the sender or website is genuine.
+                      None of our address checks flagged this one. That does not prove the sender or
+                      website is genuine, and a link can still redirect somewhere else.
                     </p>
                   )}
                 </div>
@@ -208,11 +216,22 @@ export function Result({
                 <h3>Read this note before you send it</h3>
                 <p>
                   Emails, phone numbers and long digit runs are removed. Links are made unclickable.{' '}
-                  <strong>Names and other personal details are not removed.</strong> Edit them after
-                  pasting if needed.
+                  <strong>Names and other personal details are not removed.</strong> Edit the note
+                  here before you send it.
                 </p>
                 <label for="trust-note">Note to share</label>
-                <textarea id="trust-note" readOnly value={note} rows={7} />
+                <textarea
+                  id="trust-note"
+                  value={note}
+                  rows={7}
+                  spellcheck={false}
+                  onInput={(e) => setDraft(e.currentTarget.value)}
+                />
+                {draft !== null && draft !== trustNote(text) && (
+                  <button class="text-button" onClick={() => setDraft(null)}>
+                    Undo my edits
+                  </button>
+                )}
                 <div class="button-row">
                   {'share' in navigator && (
                     <button

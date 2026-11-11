@@ -74,8 +74,10 @@ test.describe('checking a message', () => {
   test('a genuine example is not alarmed, and never called safe', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('button', { name: /Dentist reminder/ }).click();
-    await expect(page.locator('#outcome-title')).toHaveText('No known signs');
+    await expect(page.locator('#outcome-title')).toHaveText('Check before you act');
+    await expect(page.locator('.outcome-status')).toHaveText('No known signs found');
     await expect(page.locator('#result')).toContainText('does not mean the message is safe');
+    await expect(page.locator('.outcome')).toContainText('synthetic blind test');
   });
 
   test('three questions turn a no-signs result into specific advice', async ({ page }) => {
@@ -92,9 +94,13 @@ test.describe('checking a message', () => {
     await expect(panel.locator('.askback-advice')).toContainText('isn’t asking you');
     await expect(panel).not.toContainText(/\bsafe\b/);
     await answer(/code, a password/, 'Yes');
-    await expect(panel.locator('.askback-advice')).toContainText('Don’t share them');
+    // The advice for a question appears right under that question.
+    await expect(
+      panel.getByRole('group', { name: /code, a password/ }).locator('.askback-inline'),
+    ).toContainText('Don’t share them');
+    await expect(panel.locator('.askback-advice')).toContainText('suspicious');
     await answer(/pay or send money/, 'Not sure');
-    await expect(panel.locator('.askback-advice li')).toHaveCount(2);
+    await expect(panel.locator('.askback-inline:not(:empty)')).toHaveCount(2);
   });
 
   test('every example gives its labelled outcome', async ({ page }) => {
@@ -106,7 +112,7 @@ test.describe('checking a message', () => {
       await chips.nth(i).click();
       const title = await page.locator('#outcome-title').textContent();
       if (i < 5) expect(title, `example ${i}`).toMatch(/Strong signs|Some warning/);
-      else expect(title, `example ${i}`).toBe('No known signs');
+      else expect(title, `example ${i}`).toBe('Check before you act');
       await page.getByRole('button', { name: 'Check another message' }).click();
     }
   });
@@ -210,6 +216,10 @@ test.describe('checking a message', () => {
     expect(text).not.toContain('482961');
     expect(text).not.toMatch(/https?:\/\//);
     expect(text).toContain('parcel-desk[.]example');
+    await page.locator('#trust-note').fill('Can you look at this text for me?');
+    await expect(page.locator('#trust-note')).toHaveValue('Can you look at this text for me?');
+    await page.getByRole('button', { name: 'Undo my edits' }).click();
+    await expect(page.locator('#trust-note')).toHaveValue(text);
   });
 });
 
@@ -350,11 +360,13 @@ test.describe('recovery', () => {
   }) => {
     await page.goto('/');
     await open(page);
-    await page.getByRole('checkbox', { name: 'I only clicked a link' }).check();
+    await page.getByRole('checkbox', { name: 'I clicked a link or opened a page' }).check();
     await page.getByRole('checkbox', { name: 'I sent money by bank transfer' }).check();
     const steps = page.locator('ol.steps li');
     await expect(steps.first()).toContainText('Call your bank now');
-    await expect(steps.last()).toContainText('Keep evidence');
+    await expect(steps.last()).toContainText('Keep the messages');
+    await expect(page.getByRole('heading', { name: 'Do these now' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Then, when you can' })).toBeVisible();
     const total = await steps.count();
     await expect(page.locator('.plan-head [role="status"]')).toHaveText(`0 of ${total} done`);
     await steps.first().getByRole('checkbox').check();

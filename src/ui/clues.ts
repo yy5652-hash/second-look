@@ -32,3 +32,19 @@ export function cluePieces(text: string, findings: Finding[]): Piece[] {
   if (at < text.length) pieces.push({ start: at, end: text.length, ids: [] });
   return pieces;
 }
+// Pairs of rules that describe the same trick in different words. When both fire, the list shows
+// one finding with both sets of highlighted words. Display only: the score and the level are the
+// engine's and do not change.
+const SAME_TRICK: [string, string][] = [['family', 'temp-number']];
+export function mergeFindings(findings: Finding[]): Finding[] {
+  let out = findings;
+  for (const [keep, drop] of SAME_TRICK) {
+    const a = out.find((f) => f.id === keep),
+      b = out.find((f) => f.id === drop);
+    if (!a || !b) continue;
+    out = out
+      .filter((f) => f !== b)
+      .map((f) => (f === a ? { ...a, spans: [...a.spans, ...b.spans] } : f));
+  }
+  return out;
+}

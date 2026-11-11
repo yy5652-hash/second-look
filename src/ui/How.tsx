@@ -118,7 +118,7 @@ export function How() {
           <p>
             The most useful test is one the rules could not have been written for. A separate AI
             agent, with no access to the rules, wrote 60 scam and 60 genuine messages in modern
-            wording. We scored them once and changed nothing afterward.
+            wording. We scored them once, and the rules have not changed since.
           </p>
           {evaluation.blind && (
             <dl class="eval-list">
@@ -143,8 +143,8 @@ export function How() {
             SHA-256 of the message assigns it to development or held-out data (roughly 50/50). Only
             development messages and our own fixtures were used for tuning. The held-out half was
             scored twice: an earlier rule set flagged 52 of 160 smishing messages, which led us to
-            broaden the rules on development data, so the numbers below are slightly optimistic.
-            Intervals use Wilson 95%.
+            broaden the rules on development data, so the numbers below may be optimistic. Intervals
+            use Wilson 95%.
           </p>
           <p>
             We tried and rejected a small on-device word model. It looked excellent on the old
@@ -210,8 +210,9 @@ export function How() {
       </p>
       <p>
         AI assistance: Claude Code and Codex wrote the code and documentation under Yi Yu’s
-        direction. These are transparent rules, not an AI judgement of your message. No AI model is
-        called at runtime.
+        direction. The result comes from transparent rules, not an AI judgement of your message. The
+        only model in the app is Tesseract’s English OCR model, which turns a screenshot into text
+        on your device. It does not judge the message.
       </p>
       <p>
         Dataset credit: Almeida, T. &amp; Hidalgo, J. (2012),{' '}

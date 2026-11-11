@@ -1,6 +1,6 @@
 # Second Look
 
-**A private second opinion on a suspicious message. No account. No upload. Works offline.**
+**A private second opinion on a suspicious message. No account. No upload. Text checks work offline.**
 
 Live demo: https://yy5652-hash.github.io/second-look/
 
@@ -41,7 +41,7 @@ They should not need to create an account or hand a private message to a company
   and findings are linked both ways and reachable by keyboard, with a plain-language reason for each.
 - **Three quick questions when the wording settles nothing.** Does it ask for a code, a password or
   card details? For money? To open a link, call a number or install something? Any "yes" or "not
-  sure" gives specific advice for that request, with no AI and nothing uploaded.
+  sure" gives specific advice for that request, from fixed rules, with nothing uploaded.
 - **A link inspector** shows the real registrable domain, and flags lookalikes of known brands,
   mixed alphabets, encoded (punycode) hosts, raw IP addresses, `name@host` tricks, link shorteners,
   plain HTTP and a short list of risky endings. Message links are never rendered as clickable
@@ -56,9 +56,9 @@ They should not need to create an account or hand a private message to a company
   removed and links made unclickable. It tells the reader to check it first, because names are not
   removed. You send it with your device's share sheet or by copying it. The app itself sends nothing.
 - **Larger text** with one button, plus dark and light themes.
-- **Provable privacy.** A strict Content Security Policy blocks every request to another site. A
-  live panel counts requests to other sites since the page opened, using the browser's
-  PerformanceObserver. You can verify it yourself with the browser's Network tab or airplane mode.
+- **Privacy you can check.** The message is never uploaded. A strict Content Security Policy
+  blocks requests to other sites. A live panel counts the requests to other sites that the page can
+  see (the browser's PerformanceObserver; extensions and worker traffic may not appear). You can verify it yourself with the browser's Network tab or airplane mode.
   The message is held in memory only: never in storage, the address bar or history. Only the theme
   and text size choices may be stored.
 
@@ -108,7 +108,7 @@ All corpus numbers come from `docs/evaluation.json`; `docs/EVALUATION.md` has th
 
 **Blind test (the most honest number here).** A separate AI agent with no access to the rules wrote
 60 scam and 60 genuine messages in modern wording, many of them deliberately hard. We scored them
-once and changed nothing afterward. They are synthetic, not real user messages.
+once, and the rules have not changed since. They are synthetic, not real user messages.
 
 |                                                      | Count   |
 | ---------------------------------------------------- | ------- |
@@ -122,7 +122,7 @@ why every outcome tells people to check for themselves.
 **Public corpora.** Messages were split into development and held-out halves by a hash of the text.
 Rules were tuned only on the development half and on our own fixtures. The held-out half was scored
 twice: an earlier, narrower rule set flagged 52 of 160 smishing messages, which led us to broaden
-the rules using development data. Treat the second-run numbers below as slightly optimistic.
+the rules using development data. Treat the second-run numbers below as possibly optimistic.
 Intervals are Wilson 95%.
 
 UCI SMS Spam Collection, held-out half (2012; its "spam" includes ordinary marketing):
@@ -156,7 +156,7 @@ we meant.
 ## A safer outcome
 
 A text says a parcel is held for an unpaid fee of £1.45, to be paid within 2 hours at a link.
-Second Look highlights the fee, the deadline and the link, and shows that the link really goes to
+Second Look highlights the fee, the deadline and the link, and shows that the link's main address is
 `parcel-desk.example`. Its next step is to open the courier's app or the toll operator's official
 site yourself and check for a real fee there. The person can check the delivery without giving
 the message their card details.
@@ -178,8 +178,9 @@ one. It cannot confirm who sent a message.
   Recognition, Mishra and Soni (2022), Mendeley Data, CC BY 4.0, DOI 10.17632/f45bkkt8pr.1.
 - **Reporting information:** each entry in the app links to its official source with the date it
   was last checked (1 November 2026).
-- **AI assistance:** Claude Code and Codex wrote the code under Yi Yu's direction. No AI model is
-  called when the app runs.
+- **AI assistance:** Claude Code and Codex wrote the code under Yi Yu's direction. No AI model judges
+  messages. The only model shipped is Tesseract's English OCR model, which reads screenshots on
+  the device.
 - **Design:** system fonts and original inline SVG icons.
 
 ## What was built during the event, and what already existed

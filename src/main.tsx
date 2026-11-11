@@ -391,6 +391,13 @@ function App() {
                 No account. Nothing uploaded. Wording checks are in English; links in any language.
               </p>
             </section>
+            <button class="recovery-entry card" onClick={() => go('recovery', 'recovery-title')}>
+              <span>
+                <strong>Already clicked or paid?</strong>
+                <span>Get the most urgent steps first, and a summary for your bank.</span>
+              </span>
+              <Icon name="arrow" />
+            </button>
             <section class="examples" aria-labelledby="examples-title">
               <h2 id="examples-title">Try an example</h2>
               <div class="example-buttons">
@@ -411,13 +418,6 @@ function App() {
               </div>
               <p class="small muted">Made-up messages. All sample links use reserved domains.</p>
             </section>
-            <button class="recovery-entry card" onClick={() => go('recovery', 'recovery-title')}>
-              <span>
-                <strong>Already clicked or paid?</strong>
-                <span>Get a checklist, most urgent first, and a summary for your bank.</span>
-              </span>
-              <Icon name="arrow" />
-            </button>
             <div class="principles">
               <div>
                 <Icon name="shield" />

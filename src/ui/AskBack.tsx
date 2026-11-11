@@ -29,18 +29,18 @@ export function AskBack() {
               </label>
             ))}
           </div>
+          <p class="askback-inline" aria-live="polite">
+            {(answers[question.id] === 'yes' || answers[question.id] === 'unsure') &&
+              question.advice}
+          </p>
         </fieldset>
       ))}
       <div role="status" class={`askback-advice ${state}`}>
         {state === 'pause' && (
-          <>
-            <strong>Treat it as suspicious until you’ve checked.</strong>
-            <ul>
-              {advice.map((line) => (
-                <li>{line}</li>
-              ))}
-            </ul>
-          </>
+          <p>
+            <strong>Treat it as suspicious until you’ve checked.</strong>{' '}
+            {advice.length === 1 ? 'Follow the step above.' : 'Follow the steps above.'}
+          </p>
         )}
         {state === 'quiet' && (
           <p>

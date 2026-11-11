@@ -1,5 +1,5 @@
 export const actions = {
-  clicked: 'I only clicked a link',
+  clicked: 'I clicked a link or opened a page',
   password: 'I typed a password',
   code: 'I shared a login or payment code',
   details: 'I gave card or bank details',
@@ -11,52 +11,86 @@ export const actions = {
   remote: 'I installed an app or gave remote access',
 } as const;
 export type RecoveryAction = keyof typeof actions;
+// "now": stops live access or money that may still be recoverable. "next": everything after that.
+// Each step is one thing to do, so one tick means one thing done.
+export type When = 'now' | 'next';
+export interface Step {
+  step: string;
+  when: When;
+}
+const now = (step: string): Step => ({ step, when: 'now' }),
+  next = (step: string): Step => ({ step, when: 'next' });
 const accountSteps = [
-  'Open the service’s real app or type its known address yourself. Change the password. If you cannot get in, use its account recovery process.',
-  'Change that password anywhere else you reused it. Sign out other sessions, check recovery details and turn on two-step verification.',
-  'Contact the service’s support through its official app. Check for changes, purchases or messages you did not make.',
+  now('Open the service’s real app, or type its address yourself, and change the password.'),
+  next('If you can’t get in, use the service’s own account recovery.'),
+  next('Change the same password anywhere else you used it.'),
+  next('Sign out of other sessions and turn on two-step verification.'),
+  next('Look for changes, purchases or messages you didn’t make, and tell the service’s support.'),
 ];
-export const recoverySteps: Record<RecoveryAction, string[]> = {
+export const recoverySteps: Record<RecoveryAction, Step[]> = {
   clicked: [
-    'Close the page. Do not reply, download anything or allow notifications.',
-    'If you only opened it, that does not automatically mean your account was taken over. Update your browser and device. Remove any site notification permission you allowed.',
-    'If a file downloaded, do not open it. Delete it and run your device’s built-in security scan. If you entered details or installed anything, choose that option here too.',
+    now('Close the page. Don’t reply, download anything or allow notifications.'),
+    next('If a file downloaded, delete it without opening it.'),
+    next('Update your browser and run your device’s built-in security scan.'),
+    next('Remove any notification permission you gave that site.'),
+    next('If you typed details or installed something there, tick that above too.'),
   ],
   password: accountSteps,
   code: [
-    'Contact your bank or the affected service now using its real app or a known number. A code may have approved a payment or a login.',
+    now(
+      'Contact your bank or the service through its real app or a known number. The code may have approved a payment or a login.',
+    ),
     ...accountSteps,
   ],
   details: [
-    'Call your bank or card issuer using the number on your card. Tell them which details you shared and ask about freezing or replacing your card and protecting your account.',
-    'Review recent transactions and turn on alerts. Dispute any payments you do not recognise through your bank.',
-    'If you also gave identity documents or personal details, ask the reporting service below about identity theft support.',
+    now('Call your bank or card issuer on the number on your card. Say which details you shared.'),
+    now('Ask them to freeze or replace the card.'),
+    next('Turn on transaction alerts and look through recent payments.'),
+    next('Dispute any payment you don’t recognise through your bank.'),
+    next('If you also gave ID documents, ask a reporting service below about identity theft help.'),
   ],
   bank: [
-    'Call your bank now using the number on your card. Say you were tricked into a transfer and ask for a recall and fraud investigation.',
-    'Keep the transaction reference, recipient details and messages. Do not send another payment, even if someone says it will release a refund.',
+    now(
+      'Call your bank now on the number on your card. Say you were tricked into a transfer and ask for a recall.',
+    ),
+    next('Don’t send another payment, even if someone says it will release a refund.'),
   ],
   card: [
-    'Call the card issuer using the number on your card. Tell them it was a scam and ask about a dispute or chargeback.',
-    'Ask if the card needs freezing or replacing. Save the receipt and messages, and watch for other charges.',
+    now(
+      'Call the card issuer on the number on your card. Say it was a scam and ask about a chargeback.',
+    ),
+    now('Ask whether the card should be frozen or replaced.'),
+    next('Watch your statements for other charges.'),
   ],
   gift: [
-    'Contact the gift card issuer through its official website or packaging. Say the card was used in a scam and ask if the balance can be frozen or refunded.',
-    'Keep the card and purchase receipt. Do not give the numbers to anyone else who contacts you.',
+    now(
+      'Contact the gift card company through its official website or the packaging. Ask if the balance can be frozen.',
+    ),
+    next('Keep the card itself and its receipt.'),
+    next('Don’t give the card numbers to anyone else who contacts you.'),
   ],
   crypto: [
-    'Contact the exchange or wallet provider through its official support. Give them the transaction reference and recipient address.',
-    'Crypto transfers are usually irreversible. Report the payment and save the evidence. Do not pay anyone who promises to recover it for a fee.',
+    now(
+      'Contact the exchange or wallet provider through its official support. Give them the transaction reference and the address you paid.',
+    ),
+    next(
+      'Don’t pay anyone who promises to recover it for a fee. Crypto transfers are usually final.',
+    ),
   ],
   app: [
-    'Open the payment app yourself and report the payment to its official support. Ask whether it can be reversed.',
-    'If the app used your bank account or card, contact that bank or card issuer too. Keep payment records and messages.',
+    now('Open the payment app yourself and report the payment to its official support.'),
+    now('If the app used your bank account or card, call that bank or card issuer too.'),
   ],
   remote: [
-    'Disconnect that device from Wi-Fi, mobile data and wired internet to stop remote access.',
-    'Use another trusted device to call your bank and protect any accounts that were visible. Change their passwords and sign out other sessions.',
-    'Get help from a trusted technician or the device maker to remove the remote tool and check the device before reconnecting. A full reset may be needed.',
-    'Save messages and payment records from another device if you can. Do not contact the “support” person who approached you.',
+    now('Disconnect that device from Wi-Fi, mobile data and cables.'),
+    now('From another device you trust, call your bank.'),
+    next(
+      'Change the passwords of accounts that were open on that device. Sign out other sessions.',
+    ),
+    next(
+      'Have a trusted technician or the device maker remove the remote tool before you reconnect. A full reset may be needed.',
+    ),
+    next('Don’t contact the “support” person who approached you again.'),
   ],
 };
 export const recoverySources = [
@@ -76,10 +110,17 @@ const urgency: RecoveryAction[] = [
   'password',
   'clicked',
 ];
-const lastStep = 'Keep evidence, then stop contact and report using the trusted routes below.';
-export function recoveryPlan(selected: RecoveryAction[]) {
-  const steps = urgency
-    .filter((action) => selected.includes(action))
-    .flatMap((action) => recoverySteps[action]);
-  return selected.length ? [...new Set([...steps, lastStep])].map((step) => ({ step })) : [];
+const lastStep = next(
+  'Keep the messages, receipts and transaction references. Then report it using the routes below.',
+);
+// "Now" steps come first, then "next" steps, each in urgency order. A step shared by two paths
+// appears once.
+export function recoveryPlan(selected: RecoveryAction[]): Step[] {
+  if (!selected.length) return [];
+  const chosen = urgency.filter((action) => selected.includes(action));
+  const all = [...chosen.flatMap((action) => recoverySteps[action]), lastStep];
+  const seen = new Set<string>();
+  return (['now', 'next'] as const).flatMap((when) =>
+    all.filter((s) => s.when === when && !seen.has(s.step) && seen.add(s.step)),
+  );
 }

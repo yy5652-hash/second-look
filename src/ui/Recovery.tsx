@@ -81,21 +81,33 @@ export function Recovery({ message }: { message: string }) {
             aria-label="Steps done"
             class="plan-progress"
           />
-          <p class="small muted">The most urgent steps come first. Ticks are not saved.</p>
-          <ol class="steps">
-            {plan.map((item) => (
-              <li class={done.includes(item.step) ? 'done' : ''}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={done.includes(item.step)}
-                    onChange={() => setDone(toggle(done, item.step))}
-                  />
-                  <span>{item.step}</span>
-                </label>
-              </li>
-            ))}
-          </ol>
+          <p class="small muted">One thing per tick. Ticks are not saved.</p>
+          {(['now', 'next'] as const).map((when) => {
+            const group = plan.filter((item) => item.when === when);
+            return (
+              group.length > 0 && (
+                <>
+                  <h3 class={`step-group ${when}`}>
+                    {when === 'now' ? 'Do these now' : 'Then, when you can'}
+                  </h3>
+                  <ol class="steps">
+                    {group.map((item) => (
+                      <li class={done.includes(item.step) ? 'done' : ''}>
+                        <label>
+                          <input
+                            type="checkbox"
+                            checked={done.includes(item.step)}
+                            onChange={() => setDone(toggle(done, item.step))}
+                          />
+                          <span>{item.step}</span>
+                        </label>
+                      </li>
+                    ))}
+                  </ol>
+                </>
+              )
+            );
+          })}
           <div class="gentle-warning">
             <strong>Be careful with offers to recover money.</strong>
             <p>
@@ -105,6 +117,36 @@ export function Recovery({ message }: { message: string }) {
           </div>
         </div>
       )}
+      <h2>Where to report it</h2>
+      <label class="region-select">
+        Your region
+        <select value={region} onChange={(e) => setRegion(e.currentTarget.value as Region)}>
+          {(Object.keys(resources) as Region[]).map((r) => (
+            <option value={r}>{regionNames[r]}</option>
+          ))}
+        </select>
+      </label>
+      <p class="small muted">
+        These links open a new tab. Nothing from your message is added to them.
+      </p>
+      <ul class="resource-list">
+        {resources[region].map((resource) => (
+          <li>
+            <strong>
+              {resource.url ? (
+                <External href={resource.url}>{resource.label}</External>
+              ) : (
+                resource.label
+              )}
+            </strong>
+            <p>{resource.description}</p>
+            <small>
+              <External href={resource.sourceUrl}>Source</External> · Last checked{' '}
+              {resource.lastChecked}
+            </small>
+          </li>
+        ))}
+      </ul>
       <details class="report card">
         <summary>
           <Icon name="print" />
@@ -167,36 +209,6 @@ export function Recovery({ message }: { message: string }) {
           {copyStatus}
         </p>
       </details>
-      <h2>Where to report it</h2>
-      <label class="region-select">
-        Your region
-        <select value={region} onChange={(e) => setRegion(e.currentTarget.value as Region)}>
-          {(Object.keys(resources) as Region[]).map((r) => (
-            <option value={r}>{regionNames[r]}</option>
-          ))}
-        </select>
-      </label>
-      <p class="small muted">
-        These links open a new tab. Nothing from your message is added to them.
-      </p>
-      <ul class="resource-list">
-        {resources[region].map((resource) => (
-          <li>
-            <strong>
-              {resource.url ? (
-                <External href={resource.url}>{resource.label}</External>
-              ) : (
-                resource.label
-              )}
-            </strong>
-            <p>{resource.description}</p>
-            <small>
-              <External href={resource.sourceUrl}>Source</External> · Last checked{' '}
-              {resource.lastChecked}
-            </small>
-          </li>
-        ))}
-      </ul>
       <p class="emergency">
         This does not replace emergency services. If you are in immediate danger, call your local
         emergency number.

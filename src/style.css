@@ -479,8 +479,8 @@ textarea::placeholder {
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 20px 22px;
-  margin-bottom: 40px;
+  padding: 14px 20px;
+  margin-top: 12px;
   text-align: left;
   border-color: var(--red);
   background: var(--red-bg);
@@ -488,7 +488,7 @@ textarea::placeholder {
 }
 .recovery-entry strong {
   display: block;
-  font-size: 1.1rem;
+  font-size: 1.02rem;
 }
 .recovery-entry span span {
   display: block;
@@ -613,9 +613,21 @@ summary::marker {
   display: block;
   margin-top: 10px;
 }
+.outcome .outcome-status {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.outcome .outcome-warning {
+  font-size: 1.15rem;
+  margin: 0 0 4px;
+}
 .outcome .outcome-note {
-  font-size: 0.88rem;
-  margin-top: 6px;
+  font-size: 0.95rem;
+  margin-bottom: 10px;
 }
 .next-step {
   padding: 22px 26px;
@@ -696,6 +708,16 @@ label.chosen {
   border-color: var(--green);
   color: var(--on-green);
   font-weight: 650;
+}
+.askback-inline:empty {
+  display: none;
+}
+.askback-inline {
+  margin: 10px 0 0;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--amber-bg);
+  color: var(--amber);
 }
 .askback-advice:empty {
   display: none;
@@ -912,6 +934,17 @@ label.chosen {
 .plan-progress {
   display: block;
   margin-bottom: 8px;
+}
+.step-group {
+  font-size: 1rem;
+  margin: 18px 0 0;
+}
+.step-group.now {
+  color: var(--red);
+}
+.steps li:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
 }
 .steps {
   padding: 0;

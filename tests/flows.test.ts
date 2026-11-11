@@ -4,7 +4,7 @@ import { guessRegion } from '../src/data/resources';
 import type { Finding } from '../src/engine/types';
 import { askBackAdvice } from '../src/flows/askback';
 import { buildReport } from '../src/flows/report';
-import { cluePieces } from '../src/ui/clues';
+import { cluePieces, mergeFindings } from '../src/ui/clues';
 
 describe('three questions', () => {
   it('stays quiet until there is something to say', () => {
@@ -82,7 +82,13 @@ describe('recovery plan', () => {
   it('puts the most urgent first and the shared last step at the end', () => {
     const plan = recoveryPlan(['clicked', 'bank']).map((p) => p.step);
     expect(plan[0]).toContain('Call your bank now');
-    expect(plan[plan.length - 1]).toContain('Keep evidence');
+    expect(plan[plan.length - 1]).toContain('Keep the messages');
+  });
+  it('lists every "now" step before any "next" step', () => {
+    const plan = recoveryPlan(['clicked', 'card', 'remote', 'password']);
+    const firstNext = plan.findIndex((p) => p.when === 'next');
+    expect(firstNext).toBeGreaterThan(0);
+    expect(plan.slice(firstNext).every((p) => p.when === 'next')).toBe(true);
   });
   it('stops live remote access before anything else', () => {
     expect(recoveryPlan(['bank', 'remote'])[0].step).toContain('Disconnect');
@@ -128,5 +134,23 @@ describe('region guess', () => {
     expect(guessRegion('fr-FR')).toBe('Elsewhere');
     expect(guessRegion('en')).toBe('Elsewhere');
     expect(guessRegion('not a language')).toBe('Elsewhere');
+  });
+});
+
+describe('merged findings', () => {
+  const f = (id: string, start: number): Finding => ({
+    id,
+    title: id,
+    explanation: '',
+    weight: 1,
+    spans: [{ start, end: start + 2 }],
+  });
+  it('shows the family and temporary-number rules as one finding with both highlights', () => {
+    const merged = mergeFindings([f('family', 0), f('urgent', 5), f('temp-number', 10)]);
+    expect(merged.map((x) => x.id)).toEqual(['family', 'urgent']);
+    expect(merged[0].spans).toHaveLength(2);
+  });
+  it('leaves a lone rule alone', () => {
+    expect(mergeFindings([f('temp-number', 0)]).map((x) => x.id)).toEqual(['temp-number']);
   });
 });

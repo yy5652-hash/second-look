@@ -4,6 +4,7 @@ import { mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium } from '@playwright/test';
+import { messageImage } from '../tests/e2e/helpers';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'docs/screenshots');
@@ -86,9 +87,35 @@ async function main() {
     await shot('recovery-flow', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
       await page.locator('.recovery-entry').click();
       await page.getByRole('checkbox', { name: 'I paid by card' }).check();
-      await page.getByRole('checkbox', { name: 'I only clicked a link' }).check();
+      await page.getByRole('checkbox', { name: 'I clicked a link or opened a page' }).check();
       await page.locator('ol.steps li').first().getByRole('checkbox').check();
-      await page.locator('.plan').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page
+        .locator('.recovery-options')
+        .evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    });
+    await shot('report-summary', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
+      await analyse(page, SCAM);
+      await page.getByRole('button', { name: 'Already clicked or paid?' }).click();
+      await page.getByRole('checkbox', { name: 'I paid by card' }).check();
+      await page.locator('.report > summary').click();
+      await page.getByLabel('When it happened').fill('Today, 09:40');
+      await page.getByLabel('Amount').fill('£1.45');
+      await page.getByLabel('How it was paid or shared').fill('Debit card on a payment page');
+      await page.getByLabel('Their number, account or username').fill('+44 7700 900123');
+      await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+      await page.locator('.report').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+    });
+    await shot('ocr-confirm', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
+      const png = await messageImage([
+        'Your bank account is locked.',
+        'Verify now at secure-login.example',
+        'or it will be closed today.',
+      ]);
+      await page
+        .locator('input[type=file]')
+        .setInputFiles({ name: 'screenshot.png', mimeType: 'image/png', buffer: png });
+      await page.locator('.image-note').waitFor({ timeout: 60_000 });
+      await page.locator('.input-card').evaluate((el) => el.scrollIntoView({ block: 'center' }));
     });
     await browser.close();
     console.log(`Screenshots written to ${out}`);
