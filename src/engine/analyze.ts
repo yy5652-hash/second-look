@@ -46,9 +46,11 @@ function matches(text: string, re: RegExp, negation = true, discussion = false):
         .split(/[.!?;\n]/)
         .pop()!;
     // Negation is local to a clause and the matched request. It cannot silence a later sentence.
+    // Reassurance ("don't worry", "do not panic", "don't hesitate to") negates a feeling, not the
+    // request that follows, so it does not count.
     if (
       negation &&
-      /\b(?:never|will not|won['’]t|do not|don['’]t|must not|not to|no need to|avoid)\b[^.!?;\n]{0,65}$/i.test(
+      /\b(?:never|will not|won['’]t|do not|don['’]t|must not|not to|no need to|avoid)\b(?!\s+(?:worry|panic|stress|fret|be (?:alarmed|afraid|scared|worried|concerned)|hesitate|delay|wait|forget)\b)[^.!?;\n]{0,65}$/i.test(
         prefix,
       )
     )

@@ -45,6 +45,7 @@ async function main() {
         viewport: { width: opts.width, height: opts.height },
         colorScheme: opts.scheme,
         deviceScaleFactor: 1,
+        permissions: ['clipboard-read', 'clipboard-write'],
       });
       const page = await ctx.newPage();
       await page.goto(base);
@@ -87,8 +88,6 @@ async function main() {
     await shot('recovery-flow', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
       await page.locator('.recovery-entry').click();
       await page.getByRole('checkbox', { name: 'I paid by card' }).check();
-      await page.getByRole('checkbox', { name: 'I clicked a link or opened a page' }).check();
-      await page.locator('ol.steps li').first().getByRole('checkbox').check();
       await page
         .locator('.recovery-options')
         .evaluate((el) => el.scrollIntoView({ block: 'start' }));
@@ -102,8 +101,13 @@ async function main() {
       await page.getByLabel('Amount').fill('£1.45');
       await page.getByLabel('How it was paid or shared').fill('Debit card on a payment page');
       await page.getByLabel('Their number, account or username').fill('+44 7700 900123');
+      await page.getByRole('button', { name: 'Copy summary' }).click();
+      await page.getByText('Copied.').waitFor();
       await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
-      await page.locator('.report').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page
+        .locator('.report .button-row')
+        .evaluate((el) => el.scrollIntoView({ block: 'end' }));
+      await page.evaluate(() => scrollBy(0, 60));
     });
     await shot('ocr-confirm', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
       const png = await messageImage([
@@ -115,7 +119,8 @@ async function main() {
         .locator('input[type=file]')
         .setInputFiles({ name: 'screenshot.png', mimeType: 'image/png', buffer: png });
       await page.locator('.image-note').waitFor({ timeout: 60_000 });
-      await page.locator('.input-card').evaluate((el) => el.scrollIntoView({ block: 'center' }));
+      await page.locator('.input-card').evaluate((el) => el.scrollIntoView({ block: 'start' }));
+      await page.evaluate(() => scrollBy(0, -24));
     });
     await browser.close();
     console.log(`Screenshots written to ${out}`);

@@ -249,7 +249,7 @@ async function main() {
     '- Split: a deterministic hash of each message puts roughly half in a development set and half in a held-out set. Identical messages always land on the same side.',
     '- Rules were tuned only on the development half and on our own fixtures, and were then frozen.',
     '- The held-out half has been scored twice. The first run used an earlier, narrower rule set and gave 52 of 160 smishing messages flagged. Those low numbers prompted the broader problem-then-ask rules, tuned on development data only. The tables below are from the second run. Treat them as possibly optimistic, because we knew the first result.',
-    '- The blind set was written by a separate AI agent that had no access to the rules. It was scored once and no rule changed afterward.',
+    '- The blind set was written by a separate AI agent that had no access to the rules. It was first scored once with the frozen rules (engine 062fe1a79102). On 18 November 2026 two bugs found in an outside review were fixed: "don\'t worry" no longer cancels a request that follows it, and phone numbers written with dots are removed from the share note. Every set was re-run after the fix and every number below is unchanged. The blind set had been seen by then, so the re-run is a regression check, not a second blind test.',
     '- Intervals are Wilson 95% intervals.',
     '- Caveats: the collection dates from 2012, and its "spam" label includes ordinary marketing, not only scams. The spam catch rate therefore understates or muddies scam detection. The goal was few false alarms on genuine messages.',
     '',

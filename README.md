@@ -52,9 +52,9 @@ They should not need to create an account or hand a private message to a company
   police. You also get an honest note that money may not come back, a warning about "recovery" scammers who charge a fee, and
   reporting routes (US, UK, Canada, China, elsewhere), each with its source and the date it was
   last checked. It does not replace emergency services.
-- **"Ask someone you trust":** builds a note to copy with emails, phone numbers and long digit runs
-  removed and links made unclickable. It tells the reader to check it first, because names are not
-  removed. You send it with your device's share sheet or by copying it. The app itself sends nothing.
+- **"Ask someone you trust":** builds an editable note that tries to remove emails, phone numbers
+  and long numbers, with links made unclickable. It asks you to check for names, codes and other
+  personal details first, because those are not removed. You send it with your device's share sheet or by copying it. The app itself sends nothing.
 - **Larger text** with one button, plus dark and light themes.
 - **Privacy you can check.** The message is never uploaded. A strict Content Security Policy
   blocks requests to other sites. A live panel counts the requests to other sites that the page can
@@ -108,7 +108,10 @@ All corpus numbers come from `docs/evaluation.json`; `docs/EVALUATION.md` has th
 
 **Blind test (the most honest number here).** A separate AI agent with no access to the rules wrote
 60 scam and 60 genuine messages in modern wording, many of them deliberately hard. We scored them
-once, and the rules have not changed since. They are synthetic, not real user messages.
+once with the frozen rules. On 18 November we fixed one bug found in an outside review ("don't
+worry" could cancel a request that followed it); re-running the same set after the fix gave the same
+numbers, as a regression check rather than a second blind test. They are synthetic, not real user
+messages.
 
 |                                                      | Count   |
 | ---------------------------------------------------- | ------- |

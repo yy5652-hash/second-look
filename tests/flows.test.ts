@@ -154,3 +154,23 @@ describe('merged findings', () => {
     expect(mergeFindings([f('temp-number', 0)]).map((x) => x.id)).toEqual(['temp-number']);
   });
 });
+
+describe('review fixes 11-18', () => {
+  it('reassurance does not cancel a request for a code', async () => {
+    const { analyze } = await import('../src/engine/analyze');
+    expect(analyze("Don't worry, send me your security code.").level).toBe('stop');
+    expect(analyze('Do not share your security code.').level).toBe('none');
+  });
+  it('removes phone numbers written with dots', async () => {
+    const { redact } = await import('../src/engine/redact');
+    expect(redact('Call 020.7946.0958 now')).not.toContain('7946');
+  });
+  it('remote access plus card payment does not ask for two bank calls', () => {
+    const plan = recoveryPlan(['remote', 'card', 'password']).map((p) => p.step);
+    expect(plan.some((s) => s.startsWith('From another device you trust, call your bank'))).toBe(
+      false,
+    );
+    expect(plan.some((s) => s.startsWith('Use another device you trust'))).toBe(true);
+    expect(plan.filter((s) => s === 'Sign out of other sessions.')).toHaveLength(1);
+  });
+});

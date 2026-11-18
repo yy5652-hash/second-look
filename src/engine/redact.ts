@@ -12,7 +12,8 @@ export function redact(text: string): string {
   for (const link of inspectLinks(result).reverse())
     result =
       result.slice(0, link.span.start) + defang(refang(link.raw)) + result.slice(link.span.end);
-  result = result.replace(/(?:\+?\d[\d ()\-]{5,}\d)/g, (m) =>
+  // Dots count as separators too (020.7946.0958).
+  result = result.replace(/(?:\+?\d[\d ().\-]{5,}\d)/g, (m) =>
     (m.match(/\d/g)?.length ?? 0) >= 7 ? '[number removed]' : m,
   );
   return result.replace(/\d{5,}/g, '[number removed]');

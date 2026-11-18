@@ -118,7 +118,10 @@ export function How() {
           <p>
             The most useful test is one the rules could not have been written for. A separate AI
             agent, with no access to the rules, wrote 60 scam and 60 genuine messages in modern
-            wording. We scored them once, and the rules have not changed since.
+            wording. We scored them once with the frozen rules. On 18 November we fixed one bug
+            found in an outside review (“don’t worry” could cancel a request that followed it);
+            re-running the same set after the fix gave the same numbers. That re-run is a regression
+            check, not a second blind test.
           </p>
           {evaluation.blind && (
             <dl class="eval-list">

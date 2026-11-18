@@ -215,9 +215,10 @@ export function Result({
               <div class="share-panel">
                 <h3>Read this note before you send it</h3>
                 <p>
-                  Emails, phone numbers and long digit runs are removed. Links are made unclickable.{' '}
-                  <strong>Names and other personal details are not removed.</strong> Edit the note
-                  here before you send it.
+                  We try to remove email addresses, phone numbers and long numbers, and links are
+                  made unclickable.{' '}
+                  <strong>Check for names, codes, passwords and other personal details</strong> and
+                  edit the note here before you send it.
                 </p>
                 <label for="trust-note">Note to share</label>
                 <textarea

@@ -18,13 +18,15 @@ export interface Step {
   step: string;
   when: When;
 }
+const REMOTE_CALL = 'From another device you trust, call your bank.';
 const now = (step: string): Step => ({ step, when: 'now' }),
   next = (step: string): Step => ({ step, when: 'next' });
 const accountSteps = [
   now('Open the service’s real app, or type its address yourself, and change the password.'),
   next('If you can’t get in, use the service’s own account recovery.'),
   next('Change the same password anywhere else you used it.'),
-  next('Sign out of other sessions and turn on two-step verification.'),
+  next('Sign out of other sessions.'),
+  next('Turn on two-step verification.'),
   next('Look for changes, purchases or messages you didn’t make, and tell the service’s support.'),
 ];
 export const recoverySteps: Record<RecoveryAction, Step[]> = {
@@ -83,10 +85,9 @@ export const recoverySteps: Record<RecoveryAction, Step[]> = {
   ],
   remote: [
     now('Disconnect that device from Wi-Fi, mobile data and cables.'),
-    now('From another device you trust, call your bank.'),
-    next(
-      'Change the passwords of accounts that were open on that device. Sign out other sessions.',
-    ),
+    now(REMOTE_CALL),
+    next('From another device, change the passwords of accounts that were open on that device.'),
+    next('Sign out of other sessions.'),
     next(
       'Have a trusted technician or the device maker remove the remote tool before you reconnect. A full reset may be needed.',
     ),
@@ -110,6 +111,9 @@ const urgency: RecoveryAction[] = [
   'password',
   'clicked',
 ];
+// With remote access plus a money or card problem, the bank call already appears in that
+// problem's steps, so the remote step only says which device to use.
+const REMOTE_DEVICE = 'Use another device you trust for every call and password change below.';
 const lastStep = next(
   'Keep the messages, receipts and transaction references. Then report it using the routes below.',
 );
@@ -118,7 +122,10 @@ const lastStep = next(
 export function recoveryPlan(selected: RecoveryAction[]): Step[] {
   if (!selected.length) return [];
   const chosen = urgency.filter((action) => selected.includes(action));
-  const all = [...chosen.flatMap((action) => recoverySteps[action]), lastStep];
+  const money = chosen.some((a) => ['bank', 'card', 'details', 'code', 'app'].includes(a));
+  const all = [...chosen.flatMap((action) => recoverySteps[action]), lastStep].map((s) =>
+    money && s.step === REMOTE_CALL ? { ...s, step: REMOTE_DEVICE } : s,
+  );
   const seen = new Set<string>();
   return (['now', 'next'] as const).flatMap((when) =>
     all.filter((s) => s.when === when && !seen.has(s.step) && seen.add(s.step)),
