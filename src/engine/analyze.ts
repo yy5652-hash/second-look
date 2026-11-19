@@ -132,7 +132,7 @@ export function analyze(input: string): Analysis {
     'Gift cards, transfers, crypto and payment apps can make money hard to recover. Check who is asking through another route.',
     3,
     new RegExp(
-      `\\b(?:pay|send|buy|purchase|transfer|wire|deposit)${clause}\\b(?:gift cards?|wire|bank transfer|bitcoin|crypto(?:currency)?|usdt|wallet|zelle|venmo|cash app|western union)\\b|\\b(?:wire|transfer)\\s+(?:me |us )?(?:money|funds|cash|[$£€]\\d+)`,
+      `\\b(?:pay|send|buy|purchase|transfer|wire|deposit|get|grab|pick up)${clause}\\b(?:gift cards?|wire|bank transfer|bitcoin|crypto(?:currency)?|usdt|wallet|zelle|venmo|cash app|western union)\\b|\\b(?:wire|transfer)\\s+(?:me |us )?(?:money|funds|cash|[$£€]?\\d{2,}\\b)|\\btransfer(?:ring)?\\b[^.!?;\\n]{0,40}\\b(?:to|into) (?:the|this|my|our) account (?:below|above|details)|\\bgift cards? (?:are |also )*accepted|\\b(?:pay(?:ment)?|donate) (?:by|in|with|using) gift cards?`,
       'gi',
     ),
   );
@@ -142,7 +142,7 @@ export function analyze(input: string): Analysis {
     'Remote-access software can let someone see your screen and control your accounts. Do not install it at a stranger’s request.',
     5,
     new RegExp(
-      `\\b(?:install|download|open|enable|allow|give|grant)${clause}\\b(?:anydesk|teamviewer|ultraviewer|rustdesk|screenconnect|zoho assist|remote (?:access|control)|screen shar(?:e|ing))\\b`,
+      `\\b(?:install|download|open|enable|allow|give|grant)${clause}\\b(?:anydesk|teamviewer|ultraviewer|rustdesk|screenconnect|zoho assist|remote (?:access|control)|screen shar(?:e|ing)|(?:support|remote|helpdesk|help desk|repair|fix) (?:tool|app|software|program))\\b|\\b(?:so i can|let me|to let us|allow us to)\\s+(?:take a look at|see|access|control|view) (?:your )?(?:screen|computer|laptop|device|pc)\\b`,
       'gi',
     ),
   );
@@ -151,7 +151,7 @@ export function analyze(input: string): Analysis {
     'It puts you under time pressure',
     'A deadline can make it harder to stop and check. Urgency on its own is not proof of a scam.',
     1,
-    /\b(?:urgent(?:ly)?|immediately|act now|right now|within \d{1,3} (?:hours?|minutes?)|last chance|final (?:notice|warning)|today only|expires? (?:today|tonight))\b/gi,
+    /\b(?:urgent(?:ly)?|immediately|act now|right now|within \d{1,3} (?:hours?|minutes?)|last chance|final (?:notice|warning)|today only|expires? (?:today|tonight)|closes? (?:today|tonight)|decide today|by (?:tonight|end of (?:the )?day))\b/gi,
   );
   rule(
     'threat',
@@ -176,10 +176,13 @@ export function analyze(input: string): Analysis {
       2,
       matches(text, /\b(?:don['’]t tell anyone|do not tell anyone)\b/gi, false),
     );
-  const family = matches(text, /\b(?:hi|hello|hey)\s+(?:mum|mom|dad|grandma|grandpa)\b/gi);
+  const family = matches(
+    text,
+    /\b(?:hi|hello|hey)\s+(?:mum|mom|dad|grandma|grandpa|gran|nan|nana|auntie|aunt|uncle)\b/gi,
+  );
   const newPhone = matches(
     text,
-    /\b(?:new (?:phone )?number|(?:phone|mobile) (?:is |was )?(?:broken|lost|stolen)|lost my phone)\b/gi,
+    /\b(?:new (?:phone )?number|changed my number|delete (?:the|my) old (?:one|number)|(?:phone|mobile) (?:is |was )?(?:broken|lost|stolen)|lost my phone)\b/gi,
   );
   if (family.length && newPhone.length)
     add(
@@ -207,7 +210,7 @@ export function analyze(input: string): Analysis {
     'It promises easy investment returns',
     'No investment can promise high returns without risk. A guarantee is a reason to pause.',
     5,
-    /\b(?:guaranteed (?:returns?|profits?|income)|risk[- ]free (?:investments?|returns?|profits?|trading)|double your money|(?:earn|make) \d{1,3}% (?:daily|weekly|per day)|\d{1,3}% (?:guaranteed|daily returns?))\b/gi,
+    /\b(?:guaranteed (?:returns?|profits?|income)|risk[- ]free (?:investments?|returns?|profits?|trading)|double your money|(?:surge|soar|rise|jump|explode)\s+(?:by\s+)?\d{2,4}%|(?:earn|make) \d{1,3}% (?:daily|weekly|per day)|\d{1,3}% (?:guaranteed|daily returns?))\b/gi,
     true,
   );
   rule(
@@ -228,13 +231,18 @@ export function analyze(input: string): Analysis {
   if (links.length) {
     const parcel = matches(
       text,
-      /\b(?:parcel|package|delivery|courier|toll|usps|royal mail|evri|dhl|fedex)\b/gi,
+      /\b(?:parcel|package|delivery|courier|toll|tolls|usps|royal mail|evri|dhl|fedex|crossing|plate|vehicle registration|parking|congestion charge|penalty charge)\b/gi,
     );
     const fee = matches(
       text,
-      /\b(?:fee|unpaid|outstanding|pay|payment|postage due|customs charge|redelivery charge)\b/gi,
+      /\b(?:fee|unpaid|outstanding|pay|payment|postage due|customs charge|redelivery charge|handling charge|settle|balance|add your card)\b/gi,
     );
-    if (parcel.length && fee.length)
+    const settled =
+      !/\b(?:otherwise|if not|if you haven['’]t)\b/i.test(text) &&
+      /\b(?:no payment (?:is )?(?:due|needed|required)|already (?:been )?(?:charged|paid))\b/i.test(
+        text,
+      );
+    if (parcel.length && fee.length && !settled)
       add(
         'parcel',
         'A delivery or toll message asks for payment',
@@ -301,7 +309,7 @@ export function analyze(input: string): Analysis {
     'It threatens consequences unless you act',
     'A real debt or fine comes with time to check it. Look up the organisation yourself rather than using this message.',
     3,
-    /\b(?:warrant (?:may|will|has) be(?:en)? issued|avoid (?:a |any )?(?:penalty|further action)|further action|unless you (?:settle|pay|update|act|respond|call)|(?:will be|are) deleted (?:tomorrow|today|unless))\b/gi,
+    /\b(?:warrant (?:may|will|has) be(?:en)? issued|avoid (?:a |any )?(?:penalty|further action)|further action|unless you (?:settle|pay|update|act|respond|call)|avoid (?:enforcement|court|collection)(?: action)?|enforcement action|(?:will be|are) deleted (?:tomorrow|today|unless))\b/gi,
     true,
   );
   rule(
@@ -309,7 +317,7 @@ export function analyze(input: string): Analysis {
     'Someone stranded is asking you for money',
     'Scammers pretend to be friends or family stuck somewhere. Call them on the number you already have before sending anything.',
     4,
-    /\b(?:stuck abroad|stranded|wallet (?:was |has been |got )?stolen|lost my wallet|lend me [£$€]?\d)\b/gi,
+    /\b(?:stuck abroad|stranded|wallet (?:was |has been |got )?stolen|lost my wallet|lend me [£$€]?\d|(?:card|wallet|passport|phone)\b[^.!?;\n]{0,20}\b(?:blocked|stolen|lost|declined)\b[^.!?;\n]{0,20}\babroad|won['’]t let me leave)\b/gi,
     true,
   );
   rule(
@@ -317,7 +325,7 @@ export function analyze(input: string): Analysis {
     'It offers easy paid work out of the blue',
     'Unexpected job offers with high pay and no experience are a common way in. Find the employer’s own careers page yourself.',
     3,
-    /\b(?:no experience (?:needed|required)|(?:part[- ]time|remote)\s+(?:role|job|work)\s+(?:paying|earning)|(?:message|contact) me on (?:whatsapp|telegram))\b/gi,
+    /\b(?:no experience (?:needed|required)|(?:part[- ]time|remote)\s+(?:role|job|work)\s+(?:paying|earning)|(?:message|contact) me on (?:whatsapp|telegram))\b|\bthank you for your application\b[^]{0,200}\b(?:cheque|check we|equipment from|approved vendor)\b/gi,
     true,
   );
   rule(
@@ -325,7 +333,7 @@ export function analyze(input: string): Analysis {
     'A stranger talks about making money by trading',
     'A friendly chat that turns to a trading platform is a known route into investment scams. Do not invest through someone you met online.',
     3,
-    /\b(?:trading platform|made (?:a lot of|so much|good) money|(?:saw|found) your profile)\b/gi,
+    /\b(?:trading platform|made (?:a lot of|so much|good) money|(?:saw|found) your profile|(?:trading|investing)\b[^.!?;\n]{0,30}\bwith (?:a|my) (?:mentor|coach|uncle|aunt|teacher)|(?:vip|private) (?:trading|investment|signals?)(?: group| channel)?|(?:free |trading |crypto )signals)\b/gi,
     true,
   );
   rule(
@@ -358,28 +366,29 @@ export function analyze(input: string): Analysis {
   // The shape of most scams: a made-up problem or windfall, then a request to act on it. This
   // catches rewordings that fixed phrases miss, so each part alone stays quiet.
   const ownChannel =
+    !/\b(?:otherwise|if not|if you haven['’]t)\b/i.test(text) &&
     /\b(?:in|through|via|from) (?:the|your) (?:app|online account|account page|online banking|student portal)\b|\b(?:nothing|no action)\b[^.!?;\n]{0,25}\b(?:needed|required|to do)\b|\bno rush\b|\bwhen you (?:can|get a chance)\b/i.test(
       text,
     );
   const problem = matches(
     text,
-    /\b(?:suspended|limited|frozen|on hold|disabled|hacked|compromised|expir(?:ed|es|ing)|unpaid|overdue|past due|outstanding|owe|suspicious|unusual|unauthori[sz]ed|fraudulent|infected|viruses|linked to|in custody|in hospital|in jail|accident|out of space|removed|violation|lawsuit|penalty|could not be delivered|was placed on your account|sending out)\b/gi,
+    /\b(?:suspended|limited|frozen|on hold|disabled|hacked|compromised|expir(?:ed|es|ing)|unpaid|overdue|past due|outstanding|owe|suspicious|unusual|unauthori[sz]ed|fraudulent|infected|viruses|linked to|in custody|in hospital|in jail|accident|crash|missed (?:you|your delivery)|nobody (?:was )?(?:home|in|answered)|no one answered|could not match|blocked abroad|out of space|removed|violation|lawsuit|penalty|could not be delivered|was placed on your account|sending out)\b/gi,
     true,
     true,
   );
   const windfall = matches(
     text,
-    /\b(?:rebate|due a|owed|owes you|qualif(?:y|ied|ies)|pre-?approved|grant|unused|loyalty points|compensation|inherit(?:ance|ed)|no credit check|recover(?:ed)? funds|get your [^.!?;\n]{0,20}back|great returns|never has to be paid back)\b/gi,
+    /\b(?:rebate|due a|owed|owes you|qualif(?:y|ied|ies)|pre-?approved|grant|unused|loyalty points|compensation|inherit(?:ance|ed)|no credit check|recover(?:ed)? funds|get your [^.!?;\n]{0,20}back|great returns|never has to be paid back|reduction[^.!?;\n]{0,20}\bapproved|refund[^.!?;\n]{0,20}\bapproved|entitled to [£$€]?\d|wipe (?:out )?(?:up to )?\d{1,3}%|write off (?:up to )?\d{1,3}%|relief (?:programme|program|scheme))\b/gi,
     true,
     true,
   );
   const askToAct = matches(
     text,
-    /\b(?:call now|call us|call (?:this|the) number|press \d|speak to an agent|confirm your|verify your|restore your|reactivate|re-activate|unlock your|submit your|claim your|claim now|redeem|upgrade|log ?in with|sign ?in with|stay on the line|do not hang up|don['’]t hang up|read (?:them|me|us)|help me|i need you to|connect to it|respond (?:now|today|immediately)|what do you see)\b/gi,
+    /\b(?:call now|call us|call (?:this|the) number|press \d|speak to an agent|confirm your|verify your|restore your|reactivate|re-activate|unlock your|submit your|claim your|claim now|redeem|upgrade|log ?in with|sign ?in with|stay on the line|do not hang up|don['’]t hang up|read (?:them|me|us)|help me|i need you to|connect to it|respond (?:now|today|immediately)|what do you see|check (?:your )?eligibility|see if you qualify|reply for (?:payment )?details|(?:use|fill in) the (?:secure )?form)\b/gi,
   );
   const moneyAsk = matches(
     text,
-    /\b(?:pay(?: the| a)?\b(?! me back)|(?:small|processing|clearance|upfront|release|admin|handling)\s+(?:\w+\s+)?(?:fee|charge|deposit)|deposit to|bail|in cash|courier can collect|with your card|your card number|gift cards?)\b/gi,
+    /\b(?:pay(?: the| a)?\b(?! me back)|(?:small|processing|clearance|upfront|release|admin|handling)\s+(?:\w+\s+)?(?:fee|charge|deposit)|deposit to|bail|in cash|courier can collect|(?:will|can) (?:come and )?collect (?:the )?(?:money|cash)|with your card|your card number|gift cards?)\b/gi,
   );
   if (!ownChannel && problem.length && (askToAct.length || moneyAsk.length))
     add(
@@ -405,14 +414,15 @@ export function analyze(input: string): Analysis {
       2,
       moneyAsk.slice(0, 2),
     );
-  rule(
-    'temp-number',
-    'A relative seems to be on an unknown number',
-    'Scammers pretend to be family on a new phone. Call your relative on the number you already have.',
-    3,
-    /\b(?:hi|hey|hello)\s+(?:mum|mom|dad|grandma|grandpa|nan)\b[^\n]{0,80}\b(?:temporary|temp|new|different|friend['’]s) (?:number|phone)\b|\b(?:dropped|broke|lost|smashed) my phone\b/gi,
-    true,
-  );
+  if (!findings.some((f) => f.id === 'family'))
+    rule(
+      'temp-number',
+      'A relative seems to be on an unknown number',
+      'Scammers pretend to be family on a new phone. Call your relative on the number you already have.',
+      3,
+      /\b(?:hi|hey|hello)\s+(?:mum|mom|dad|grandma|grandpa|nan)\b[^\n]{0,80}\b(?:temporary|temp|new|different|friend['’]s) (?:number|phone)\b|\b(?:dropped|broke|lost|smashed) my phone\b/gi,
+      true,
+    );
   rule(
     'high-earnings',
     'It promises high pay for easy work',
@@ -434,6 +444,105 @@ export function analyze(input: string): Analysis {
     'A payment can be fake or later reversed. Do not send a separate payment to return the difference.',
     5,
     /\b(?:overpaid|overpayment|refund(?:ed)? (?:you )?too much|send (?:me |us )?(?:back )?the difference|return the (?:extra|difference)|refund the (?:difference|excess))\b/gi,
+  );
+  // One-time codes: someone asks the reader to pass on a code that arrives on their phone.
+  rule(
+    'code-relay',
+    'It asks you to pass on a code sent to you',
+    'A code texted to you can let someone into your account. Real companies never ask you to send it back to a person.',
+    5,
+    /\b(?:send|share|forward|read|text|pass|give|reply with|tell)\b[^.!?;\n]{0,40}\b(?:the|that|this|a)\s+(?:\d-digit|six-digit|verification|security|login|sign-in)\s+code\b(?![^.!?;\n]{0,25}\bfrom the (?:email|app)\b)|\b(?:send|share|forward|read|text|pass|give|tell)\b[^.!?;\n]{0,15}\b(?:the|that|this) code\b[^.!?;\n]{0,40}\b(?:you (?:just )?(?:got|received|get)|on your phone|to your phone|by text)\b|\bcode\b[^.!?;\n]{0,60}\b(?:went to you|sent to you|coming to your phone|about to come to your phone|you(?:['’]ll| will) (?:get|receive))\b[^]{0,90}\b(?:send|read|forward|reply|share|tell)\b|\byou(?:['’]ll| will) (?:get|receive) (?:a|the) code\b[^]{0,80}\b(?:send|read|forward|reply|share|tell)\b(?: it)? (?:back|to me)\b|\breply with (?:the|this) code\b/gi,
+  );
+  rule(
+    'bank-numbers',
+    'It asks for your account numbers or wallet recovery words',
+    'Your sort code, account or card number and a wallet recovery phrase are for you alone. Contact the organisation through its own app.',
+    5,
+    /\b(?:reply with|send|provide|confirm|give|email|enter|share|re-?sync with)\b[^.!?;\n]{0,30}\b(?:sort code|account number|card number|cvv|security digits|seed phrase|recovery phrase|\d{2}-word (?:phrase|recovery)|private key)s?\b/gi,
+    true,
+  );
+  rule(
+    'card-link',
+    'It asks you to add a card at a link',
+    'A page reached from a message can copy a real one. Pay or add cards only in an app or site you open yourself.',
+    links.length &&
+      /\b(?:invoice|unpaid|outstanding|balance|fee|fine|toll|owe|due|charge)\b/i.test(text)
+      ? 3
+      : 0,
+    /\b(?:add|enter|input|link)\s+(?:your\s+)?(?:bank\s+)?(?:card|payment method)(?: details| number)?\b/gi,
+    true,
+  );
+  rule(
+    'card-codes',
+    'It asks for gift card numbers or codes',
+    'Once someone has the numbers on a gift card, the money is gone. No employer, company or charity takes payment this way.',
+    5,
+    /\b(?:send|email|text|photo|picture|scratch|reply with)\b[^.!?;\n]{0,40}\b(?:card numbers|codes? on the back|back of the cards?|card codes|claim codes)\b/gi,
+    true,
+  );
+  rule(
+    'extortion',
+    'It threatens to expose you unless you pay',
+    'This is a common blackmail trick, usually with nothing behind it. Do not pay or reply; report it.',
+    5,
+    /\b(?:keep quiet|stay quiet|stay silent|delete (?:it|them|the (?:video|photos))|not (?:share|send|release|post) (?:it|them))\b[^.!?;\n]{0,25}\b(?:for|unless|if you (?:pay|send))\b[^.!?;\n]{0,10}[£$€]?\d|\b(?:camera|webcam)\b[^.!?;\n]{0,25}\b(?:compromised|hacked|recorded)\b/gi,
+    true,
+  );
+  rule(
+    'unseen-deposit',
+    'It asks for a deposit before you can see the place',
+    'Paying to hold a home you cannot view is a common rental scam. Do not pay until you have seen it and checked the landlord.',
+    4,
+    /\b(?:can['’]t|cannot|unable to|not able to)\s+(?:show|view|see|meet)\b[^]{0,160}\b(?:deposit|first month|payment link)\b|\b(?:deposit|first month|payment link)\b[^]{0,160}\b(?:can['’]t|cannot|unable to)\s+(?:show|view|see|meet)\b|\bkeys?\b[^.!?;\n]{0,40}\b(?:once|after|when) you (?:pay|transfer|send)\b/gi,
+    true,
+  );
+  rule(
+    'favour',
+    'Someone busy asks for a quick favour',
+    'This is how many boss and gift card scams begin. Check with the person through a number or chat you already use.',
+    3,
+    /\b(?:in (?:a |back-to-back )?(?:meeting|calls)|can['’]t (?:talk|take calls))\b[^]{0,80}\b(?:quick favou?r|need a favou?r|reply when you see this)\b|\b(?:quick favou?r|are you at your desk)\b[^]{0,80}\b(?:in (?:a |back-to-back )?(?:meeting|calls)|can['’]t (?:talk|take calls))\b/gi,
+  );
+  rule(
+    'off-platform',
+    'A new contact wants to move the chat elsewhere',
+    'Moving a new contact to a private chat app is a common step in romance and investment scams.',
+    2,
+    /\b(?:talk|chat|continue (?:this|our chat)?) on (?:google chat|hangouts|whatsapp|telegram|signal|wechat)\b|\b(?:deployed|stationed) (?:overseas|abroad)\b|\b(?:abroad|overseas|offshore) on (?:a |an )?(?:mission|assignment|oil rig|contract)\b|\blooking for a (?:kind|honest|loving) (?:heart|woman|man|soul)\b/gi,
+    true,
+  );
+  rule(
+    'family-claim',
+    'Someone says they are family and asks for money',
+    'Scammers pretend to be a relative in trouble. Call your relative on the number you already have before doing anything.',
+    4,
+    /\b(?:mum|mom|dad|grandma|grandpa|nan|nana|gran|auntie|aunt|uncle)\s*,?\s*(?:it['’]?s|its|this is) me\b(?=[^]{0,240}\b(?:money|cash|bail|transfer|send|pay|account|£|\$|€|\d{3,}))/gi,
+    true,
+  );
+  add(
+    'lend-stuck',
+    'It asks you to lend money until funds are released',
+    'A story about money that is stuck and a small loan is a common romance and friendship scam.',
+    3,
+    matches(
+      text,
+      /\b(?:lend me|could you lend|borrow (?:some )?money)\b[^]{0,120}\b(?:release|frozen|contract|customs|clears)\b|\b(?:won['’]t|will not|can['’]t)\s+release my (?:funds|money)\b/gi,
+      false,
+    ),
+  );
+  rule(
+    'callback',
+    'It reports a charge and gives a number to call',
+    'Fake renewal and charge messages want you to call a fake helpline. Check your bank app, and use the number on your card.',
+    links.length ? 3 : 5,
+    /\bif you did(?: not|n['’]t) (?:make|authori[sz]e|recogni[sz]e|place|order)\b[^.!?\n]{0,50}\bcall\b[^.!?\n]{0,15}\+?\d[\d ().-]{6,}\d/gi,
+  );
+  rule(
+    'overpay-mistake',
+    'It says it sent you too much by mistake',
+    'A payment can be fake or later reversed. Check your own banking app before sending anything back.',
+    5,
+    /\b(?:sent|paid|transferred)\b[^.!?;\n]{0,25}(?:[£$€]\d|money|too much|extra)[^.!?;\n]{0,25}\bby mistake\b|\bforward the (?:balance|difference|rest|remainder|excess)\b|\bsend (?:extra|more)\b[^.!?;\n]{0,40}\bforward\b/gi,
   );
   const riskyAsk = findings.some((f) => !['urgency', 'secrecy'].includes(f.id));
   const authority = matches(
