@@ -38,6 +38,34 @@ Synthetic, not real user data, but written by an author who could not see the ru
 | too short | 0 / 60 | 0.00% | 0.00–6.02% |
 | stop or caution | 30 / 60 | 50.00% | 37.74–62.26% |
 
+## Second blind set: 108 new messages, scored once
+
+On 19 November 2026 a new AI agent, again with no access to the rules, wrote 54 scam and 54 genuine messages across more scam types (code theft, invoice redirection, rental deposits, romance, task scams, charity appeals and others) and deliberately hard genuine messages. The file was sealed (SHA-256 prefix 404eb969cde2) and scored once with the live rules. It replicates the first blind test: about half of the scams are flagged, and few genuine messages are.
+
+We also wrote an experimental set of new rules from the scams the first blind set had missed. On its own development data it caught all 60 first-set scams with no new false alarms on the other sets. Scored once on this second blind set, it flagged 27 of 54 scams (13 as strong signs) and 6 of 54 genuine messages, against 25 of 54 and 5 of 54 for the live rules. That gain is within noise, so we did not ship it. It is the clearest evidence we have that adding wording rules has diminishing returns, and that the no-signs path matters.
+
+**Genuine messages** (n = 54)
+
+| Outcome | Count / total | Rate | Wilson 95% interval |
+| --- | --- | --- | --- |
+| stop | 0 / 54 | 0.00% | 0.00–6.64% |
+| caution | 5 / 54 | 9.26% | 4.02–19.91% |
+| none | 49 / 54 | 90.74% | 80.09–95.98% |
+| unsupported | 0 / 54 | 0.00% | 0.00–6.64% |
+| too short | 0 / 54 | 0.00% | 0.00–6.64% |
+| stop or caution | 5 / 54 | 9.26% | 4.02–19.91% |
+
+**Scam messages** (n = 54)
+
+| Outcome | Count / total | Rate | Wilson 95% interval |
+| --- | --- | --- | --- |
+| stop | 12 / 54 | 22.22% | 13.20–34.94% |
+| caution | 13 / 54 | 24.07% | 14.64–36.95% |
+| none | 29 / 54 | 53.70% | 40.61–66.31% |
+| unsupported | 0 / 54 | 0.00% | 0.00–6.64% |
+| too short | 0 / 54 | 0.00% | 0.00–6.64% |
+| stop or caution | 25 / 54 | 46.30% | 33.69–59.39% |
+
 ## A model we rejected
 
 We also trained a small on-device word model on the development half. Cross-validated on that half it flagged 82% of spam and smishing with 0.5% false alarms, which looked excellent. On 30 modern genuine messages we wrote ourselves, it raised 9 false alarms, including a plain card receipt, and it caught only 6 of 15 modern scams. The 2012 corpus has almost no business messages among its genuine texts, so the model had learned that a commercial tone means spam. We removed it. Corpus scores alone would have hidden this.

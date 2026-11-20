@@ -166,6 +166,16 @@ async function main() {
     scam: score(independent.filter((f) => f.label === 'scam').map((f) => f.text)).group,
   };
 
+  // Second blind set, written on 19 November 2026 by a new agent that never saw the rules.
+  // Scored once with the live rules (engine hash below). Never used for tuning.
+  const independent2 = JSON.parse(
+    readFileSync(join(root, 'tests/fixtures/independent2.json'), 'utf8'),
+  ) as { label: 'scam' | 'genuine'; text: string }[];
+  const blind2 = {
+    genuine: score(independent2.filter((f) => f.label === 'genuine').map((f) => f.text)).group,
+    scam: score(independent2.filter((f) => f.label === 'scam').map((f) => f.text)).group,
+  };
+
   if (dev) {
     console.log('DEVELOPMENT SPLIT (for tuning; nothing is written)\n');
     console.log(
@@ -223,6 +233,7 @@ async function main() {
   const out = {
     status: 'complete',
     blind,
+    blind2,
     generated: new Date().toISOString(),
     split:
       'SHA-256 of the lower-cased, whitespace-collapsed message; first 32 bits even = development, odd = held-out',
@@ -260,6 +271,16 @@ async function main() {
     table('Genuine messages', blind.genuine),
     '',
     table('Scam messages', blind.scam),
+    '',
+    '## Second blind set: 108 new messages, scored once',
+    '',
+    'On 19 November 2026 a new AI agent, again with no access to the rules, wrote 54 scam and 54 genuine messages across more scam types (code theft, invoice redirection, rental deposits, romance, task scams, charity appeals and others) and deliberately hard genuine messages. The file was sealed (SHA-256 prefix 404eb969cde2) and scored once with the live rules. It replicates the first blind test: about half of the scams are flagged, and few genuine messages are.',
+    '',
+    'We also wrote an experimental set of new rules from the scams the first blind set had missed. On its own development data it caught all 60 first-set scams with no new false alarms on the other sets. Scored once on this second blind set, it flagged 27 of 54 scams (13 as strong signs) and 6 of 54 genuine messages, against 25 of 54 and 5 of 54 for the live rules. That gain is within noise, so we did not ship it. It is the clearest evidence we have that adding wording rules has diminishing returns, and that the no-signs path matters.',
+    '',
+    table('Genuine messages', blind2.genuine),
+    '',
+    table('Scam messages', blind2.scam),
     '',
     '## A model we rejected',
     '',

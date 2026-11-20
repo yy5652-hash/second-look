@@ -119,6 +119,12 @@ messages.
 | Scams flagged "strong signs"                         | 12 / 60 |
 | Genuine messages flagged                             | 3 / 60  |
 
+**Second blind test (19 November).** A new agent, again without the rules, wrote 54 scams and 54
+genuine messages across more scam types. Scored once with the live rules: 25 of 54 scams flagged
+(12 as strong signs) and 5 of 54 genuine messages flagged, which replicates the first test. An
+experimental rule set written from the first test's misses scored 27 of 54 and 6 of 54 on the same
+set, a gain within noise, so it was not shipped.
+
 So about half of those scams got "no known signs". That is why the result never says "safe", and
 why every outcome tells people to check for themselves.
 

@@ -21,6 +21,7 @@ interface Evaluation {
   extraHeldOut?: null | { ham: Group; smishing: Group; spam: Group };
   synthetic: null | { genuine: Group; scam: Group };
   blind?: { genuine: Group; scam: Group };
+  blind2?: { genuine: Group; scam: Group };
   engineHash?: string;
   extraDataset?: string;
 }
@@ -133,9 +134,23 @@ export function How() {
               <dd>{metric(evaluation.blind.genuine.stopOrCaution)}</dd>
             </dl>
           )}
+          {evaluation.blind2 && (
+            <>
+              <p>
+                On 19 November a new agent, again without the rules, wrote a second set of 54 scams
+                and 54 genuine messages. We scored it once with the same rules:
+              </p>
+              <dl class="eval-list">
+                <dt>Scams flagged strong or caution</dt>
+                <dd>{metric(evaluation.blind2.scam.stopOrCaution)}</dd>
+                <dt>Genuine messages flagged strong or caution</dt>
+                <dd>{metric(evaluation.blind2.genuine.stopOrCaution)}</dd>
+              </dl>
+            </>
+          )}
           <p>
-            So about half of those scams got “no known signs”. That is why the result never says
-            “safe”, and why the next step always tells you to check for yourself.
+            So in both tests about half of the scams got “no known signs”. That is why the result
+            never says “safe”, and why the next step always tells you to check for yourself.
           </p>
           <p>
             We also scored two public collections of text messages. The UCI SMS Spam Collection

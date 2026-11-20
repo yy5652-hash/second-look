@@ -116,7 +116,123 @@
       }
     }
   },
-  "generated": "2026-11-18T15:18:06.335Z",
+  "blind2": {
+    "genuine": {
+      "total": 54,
+      "stop": {
+        "count": 0,
+        "total": 54,
+        "rate": 0,
+        "wilson95": [
+          0,
+          0.0664135880908964
+        ]
+      },
+      "caution": {
+        "count": 5,
+        "total": 54,
+        "rate": 0.09259259259259259,
+        "wilson95": [
+          0.04020113475702944,
+          0.19909882590962688
+        ]
+      },
+      "none": {
+        "count": 49,
+        "total": 54,
+        "rate": 0.9074074074074074,
+        "wilson95": [
+          0.8009011740903732,
+          0.9597988652429706
+        ]
+      },
+      "unsupported": {
+        "count": 0,
+        "total": 54,
+        "rate": 0,
+        "wilson95": [
+          0,
+          0.0664135880908964
+        ]
+      },
+      "too_short": {
+        "count": 0,
+        "total": 54,
+        "rate": 0,
+        "wilson95": [
+          0,
+          0.0664135880908964
+        ]
+      },
+      "stopOrCaution": {
+        "count": 5,
+        "total": 54,
+        "rate": 0.09259259259259259,
+        "wilson95": [
+          0.04020113475702944,
+          0.19909882590962688
+        ]
+      }
+    },
+    "scam": {
+      "total": 54,
+      "stop": {
+        "count": 12,
+        "total": 54,
+        "rate": 0.2222222222222222,
+        "wilson95": [
+          0.13195416567633134,
+          0.3493867165963889
+        ]
+      },
+      "caution": {
+        "count": 13,
+        "total": 54,
+        "rate": 0.24074074074074073,
+        "wilson95": [
+          0.14644291495284428,
+          0.36947524183502795
+        ]
+      },
+      "none": {
+        "count": 29,
+        "total": 54,
+        "rate": 0.5370370370370371,
+        "wilson95": [
+          0.40605356021011496,
+          0.6631009888201891
+        ]
+      },
+      "unsupported": {
+        "count": 0,
+        "total": 54,
+        "rate": 0,
+        "wilson95": [
+          0,
+          0.0664135880908964
+        ]
+      },
+      "too_short": {
+        "count": 0,
+        "total": 54,
+        "rate": 0,
+        "wilson95": [
+          0,
+          0.0664135880908964
+        ]
+      },
+      "stopOrCaution": {
+        "count": 25,
+        "total": 54,
+        "rate": 0.46296296296296297,
+        "wilson95": [
+          0.336899011179811,
+          0.5939464397898851
+        ]
+      }
+    }
+  },
+  "generated": "2026-11-20T13:34:08.075Z",
   "split": "SHA-256 of the lower-cased, whitespace-collapsed message; first 32 bits even = development, odd = held-out",
   "engineHash": "812ff06bf8a6565e36ecb23d469df0ec0ed72ce36544a095853aad40b61f51f0",
   "fixtureHash": "79497d562d483cc4fe80ac1a1bd3c78d2a408b0dd40cb127e4afb599aaa2a6aa",
