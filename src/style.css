@@ -19,16 +19,17 @@
     'Segoe UI',
     sans-serif;
   font-size: 17px;
-  color: #1f2f29;
-  background: #f4f5ef;
+  color: #142033;
+  background: #f3eee3;
   font-synthesis: none;
-  --bg: #f4f5ef;
+  /* Palette: Hokusai, Under the Wave off Kanagawa (see DESIGN.md). Token names kept. */
+  --bg: #f3eee3;
   --surface: #ffffff;
-  --ink: #1f2f29;
-  --muted: #55645c;
-  --line: #d3d9cf;
-  --green: #1d4a3c;
-  --green-soft: #e6ece3;
+  --ink: #142033;
+  --muted: #4f5b6e;
+  --line: #d6d3c8;
+  --green: #1f3d66;
+  --green-soft: #e4e9f1;
   --on-green: #ffffff;
   --highlight: #fbe59c;
   --highlight-strong: #f5c63c;
@@ -40,21 +41,21 @@
   --stop-ink: #ffffff;
   --caution-bg: #f6c445;
   --caution-ink: #2b2100;
-  --none-bg: #dfe5dc;
-  --none-ink: #1f2f29;
+  --none-bg: #e3e6ec;
+  --none-ink: #142033;
   --focus: #b4471c;
-  --shadow: 0 10px 40px #1f2f290d;
+  --shadow: 0 10px 40px #1420330f;
   color-scheme: light;
 }
 :root[data-theme='dark'] {
-  --bg: #141c19;
-  --surface: #1e2925;
-  --ink: #eef1e8;
-  --muted: #b5c3b8;
-  --line: #43544b;
-  --green: #a9d0b9;
-  --green-soft: #2a3f34;
-  --on-green: #10231a;
+  --bg: #0e1a2e;
+  --surface: #172640;
+  --ink: #f1ece0;
+  --muted: #b6c0cf;
+  --line: #34476a;
+  --green: #a9c4ea;
+  --green-soft: #22385c;
+  --on-green: #0d1a2e;
   --highlight: #5f4d16;
   --highlight-strong: #8a6f16;
   --amber: #f4d28e;
@@ -65,8 +66,8 @@
   --stop-ink: #ffffff;
   --caution-bg: #e3b23c;
   --caution-ink: #231b00;
-  --none-bg: #2e3b35;
-  --none-ink: #eef1e8;
+  --none-bg: #24344f;
+  --none-ink: #f1ece0;
   --focus: #f3c18e;
   --shadow: none;
   color: var(--ink);

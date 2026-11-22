@@ -2,7 +2,7 @@ import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import preact from '@preact/preset-vite';
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa';
-const manifest: Partial<ManifestOptions> = { name: 'Second Look — Pause. Check. Choose.', short_name: 'Second Look', description: 'A private second opinion on a suspicious message. No account. No upload.', id: './', start_url: './', scope: './', display: 'standalone', background_color: '#f6f5ef', theme_color: '#234b40', icons: [{src:'icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}] };
+const manifest: Partial<ManifestOptions> = { name: 'Second Look — Pause. Check. Choose.', short_name: 'Second Look', description: 'A private second opinion on a suspicious message. No account. No upload.', id: './', start_url: './', scope: './', display: 'standalone', background_color: '#f3eee3', theme_color: '#1f3d66', icons: [{src:'icon-192.png',sizes:'192x192',type:'image/png',purpose:'any'},{src:'icon-512.png',sizes:'512x512',type:'image/png',purpose:'any maskable'}] };
 // Swapped in by the page only once its service worker is active, so that an installed app cannot
 // declare the share target while nothing is there to keep a shared message on the device.
 const shareManifest: Plugin = {
