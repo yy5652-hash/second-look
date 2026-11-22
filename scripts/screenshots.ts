@@ -72,7 +72,10 @@ async function main() {
       await analyse(page, SCAM);
     });
     await shot('ask-back', { width: 1280, height: 900, scheme: 'light' }, async (page) => {
-      await page.getByRole('button', { name: /Dentist reminder/ }).click();
+      await analyse(
+        page,
+        "Hi, it's Jo from the school office. The trip money for Friday hasn't come through yet. Could you send the £35 today so Mia can still go?",
+      );
       await page
         .locator('.askback')
         .getByRole('group', { name: /pay or send money/ })
