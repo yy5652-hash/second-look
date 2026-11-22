@@ -2,7 +2,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { check, messageImage, ORIGIN, qrImage, watchConsole, watchExternal } from './helpers';
 
 const SCAM =
-  'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://parcel-desk.example/fee to avoid return.';
+  'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://royalmail.com.parcel-desk.example/fee to avoid return.';
 
 test.describe('checking a message', () => {
   test('paste flow: outcome, highlights linked both ways, next step', async ({

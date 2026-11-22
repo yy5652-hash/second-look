@@ -1,7 +1,7 @@
 export const examples = [
   {
     name: 'Parcel fee',
-    text: 'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://parcel-desk.example/fee to avoid return.',
+    text: 'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://royalmail.com.parcel-desk.example/fee to avoid return.',
   },
   {
     name: 'Family request',

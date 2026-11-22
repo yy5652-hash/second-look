@@ -565,6 +565,8 @@ export function analyze(input: string): Analysis {
                           nextStep:
                             'Contact the person or organisation using a number or app you already trust. Do not use contact details from this message.',
                         };
+  // The heaviest finding names the reason when no scenario-specific summary fits.
+  const strongest = [...findings].sort((a, b) => b.weight - a.weight)[0];
   const summary = has('credentials')
     ? 'It asks you to give up a password or code that could unlock an account.'
     : has('remote')
@@ -599,7 +601,9 @@ export function analyze(input: string): Analysis {
                                   ? 'We did not find a known warning pattern. That does not verify the sender.'
                                   : level === 'too_short'
                                     ? 'Add more of the message so there is enough to check.'
-                                    : 'There are reasons to pause and check this message through another route.';
+                                    : strongest
+                                      ? `Main warning: ${strongest.title.charAt(0).toLowerCase()}${strongest.title.slice(1)}. Check it through another route.`
+                                      : 'There are reasons to pause and check this message through another route.';
   return { level, summary, scenario, findings: score < 2 ? [] : findings, links, notes };
 }
 

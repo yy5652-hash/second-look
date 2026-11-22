@@ -166,7 +166,7 @@ we meant.
 
 A text says a parcel is held for an unpaid fee of £1.45, to be paid within 2 hours at a link.
 Second Look highlights the fee, the deadline and the link, and shows that the link's main address is
-`parcel-desk.example`. Its next step is to open the courier's app or the toll operator's official
+`parcel-desk.example`, even though the link begins with `royalmail.com`. Its next step is to open the courier's app or the toll operator's official
 site yourself and check for a real fee there. The person can check the delivery without giving
 the message their card details.
 

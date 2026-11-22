@@ -11,7 +11,7 @@ const out = join(root, 'docs/screenshots');
 const PORT = 4319;
 const base = `http://127.0.0.1:${PORT}/`;
 const SCAM =
-  'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://parcel-desk.example/fee to avoid return.';
+  'Delivery notice: your parcel is held for an unpaid fee of £1.45. Pay within 2 hours at https://royalmail.com.parcel-desk.example/fee to avoid return.';
 
 async function waitForServer() {
   for (let i = 0; i < 60; i++) {
