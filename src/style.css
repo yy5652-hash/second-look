@@ -1318,3 +1318,14 @@ footer > p {
     transition: none !important;
   }
 }
+
+.recovery-back { margin-bottom: 16px; }
+.plan-jump { display: none; }
+@media (max-width: 720px) {
+  .plan-jump {
+    display: block; position: sticky; bottom: 12px; z-index: 5; margin-top: 12px;
+    padding: 14px 18px; border-radius: 999px; text-align: center; font-weight: 700;
+    background: var(--green); color: var(--on-green); text-decoration: none;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25); min-height: 44px;
+  }
+}

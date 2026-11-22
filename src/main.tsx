@@ -258,7 +258,7 @@ function App() {
           {shown === 'result' && result ? `${outcomeNames[result.level]}. ${result.summary}` : ''}
         </p>
         {shown === 'how' && <How />}
-        {shown === 'recovery' && <Recovery message={text} />}
+        {shown === 'recovery' && <Recovery message={text} onBack={() => history.back()} />}
         {shown === 'result' && result && (
           <Result
             key={text}
@@ -305,6 +305,12 @@ function App() {
                 autoCapitalize="off"
                 aria-describedby="input-help input-notice"
                 onInput={(e) => change(e.currentTarget.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !busy) {
+                    e.preventDefault();
+                    run(text);
+                  }
+                }}
                 onPaste={(e) => {
                   const f = e.clipboardData?.files[0];
                   if (f) {

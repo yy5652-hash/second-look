@@ -1,12 +1,16 @@
-import { useState } from 'preact/hooks';
 import { askBackAdvice, questions, type Answer, type Answers } from '../flows/askback';
 const choices: { value: Answer; label: string }[] = [
   { value: 'yes', label: 'Yes' },
   { value: 'no', label: 'No' },
   { value: 'unsure', label: 'Not sure' },
 ];
-export function AskBack() {
-  const [answers, setAnswers] = useState<Answers>({});
+export function AskBack({
+  answers,
+  setAnswers,
+}: {
+  answers: Answers;
+  setAnswers: (a: Answers) => void;
+}) {
   const { state, advice } = askBackAdvice(answers);
   return (
     <section class="askback" aria-labelledby="askback-title">

@@ -69,8 +69,9 @@ export function How() {
       </ul>
       <p>
         A short message without a link may have too little information to judge. Wording checks are
-        English only; links are still inspected in other languages. English written in unusual
-        forms, and other languages using Latin letters, may be missed.
+        English only; links are still inspected in other languages. Common Spanish, French, German,
+        Portuguese and Italian wording is recognised and gets “We could not judge the wording”.
+        English written in unusual forms, and other languages, may be missed.
       </p>
       <h2>Simple rules, not a secret score</h2>
       <p>

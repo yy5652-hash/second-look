@@ -467,10 +467,20 @@ export function analyze(input: string): Analysis {
   const wording = blankLinks(text, links);
   const letters = wording.match(/\p{L}/gu) ?? [];
   const nonLatin = letters.filter((c) => !/\p{Script=Latin}/u.test(c)).length;
-  const unsupported = letters.length > 0 && nonLatin / letters.length > 0.45;
+  const otherScript = letters.length > 0 && nonLatin / letters.length > 0.45;
+  // Other languages in Latin letters: common function words of Spanish, French, German,
+  // Portuguese and Italian far outnumber English ones.
+  const words = wording.toLowerCase().match(/\p{L}+/gu) ?? [];
+  const count = (set: Set<string>) => words.filter((w) => set.has(w)).length;
+  const foreign = count(FOREIGN_WORDS),
+    english = count(ENGLISH_WORDS);
+  const otherLatin = !otherScript && foreign >= 3 && foreign > 2 * english;
+  const unsupported = otherScript || otherLatin;
   if (unsupported)
     notes.push(
-      'Wording checks are English only. Much of this message uses another writing system, so the wording could not be judged. Link checks still ran.',
+      otherScript
+        ? 'Wording checks are English only. Much of this message uses another writing system, so the wording could not be judged. Link checks still ran.'
+        : 'Wording checks are English only. This message looks like it is in another language, so the wording could not be judged. Link checks still ran.',
     );
   notes.push(
     'These checks cannot confirm the sender, open a website, or catch every scam. No known signs does not mean a message is safe.',
@@ -592,3 +602,18 @@ export function analyze(input: string): Analysis {
                                     : 'There are reasons to pause and check this message through another route.';
   return { level, summary, scenario, findings: score < 2 ? [] : findings, links, notes };
 }
+
+const FOREIGN_WORDS = new Set(
+  (
+    'el la los las que y del por para una por con mi tu su es está estás puedes hola mamá papá hoy ' +
+    'le les et des est une du je vous nous pas avec pour ce cette mon ma ton ta bonjour aujourd ' +
+    'der die das und ist nicht ich sie mit ein eine dein mein bitte heute hallo ' +
+    'não você é um uma com meu minha olá hoje ' +
+    'il di che per sono non ciao oggi mio'
+  ).split(' '),
+);
+const ENGLISH_WORDS = new Set(
+  'the and you your to is it of for this my can on in we have are with please be that will from at'.split(
+    ' ',
+  ),
+);

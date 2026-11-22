@@ -19,17 +19,39 @@ const regionNames: Record<Region, string> = {
   China: 'China',
   Elsewhere: 'Anywhere else',
 };
-export function Recovery({ message }: { message: string }) {
+// Prices in the message hint at where it was sent from; the browser language decides otherwise.
+function regionFor(message: string): Region {
+  if (/£|\bGBP\b/.test(message)) return 'UK';
+  if (/\bC\$|\bCAD\b/.test(message)) return 'Canada';
+  if (/¥|元|\bRMB\b|\bCNY\b/.test(message)) return 'China';
+  return guessRegion(navigator.language);
+}
+const paidWays: Partial<Record<RecoveryAction, string>> = {
+  card: 'Card payment',
+  bank: 'Bank transfer',
+  app: 'Payment app',
+  gift: 'Gift cards',
+  crypto: 'Cryptocurrency',
+  details: 'Card or bank details given',
+};
+export function Recovery({ message, onBack }: { message: string; onBack?: () => void }) {
   const [happened, setHappened] = useState<RecoveryAction[]>([]),
     [done, setDone] = useState<string[]>([]),
-    [region, setRegion] = useState<Region>(() => guessRegion(navigator.language)),
+    [region, setRegion] = useState<Region>(() => regionFor(message)),
     [when, setWhen] = useState(''),
     [amount, setAmount] = useState(''),
-    [paidHow, setPaidHow] = useState(''),
+    [paidHowTyped, setPaidHow] = useState<string | null>(null),
     [contact, setContact] = useState(''),
     [reportMessage, setReportMessage] = useState(message),
     [copyStatus, setCopyStatus] = useState('');
   const plan = recoveryPlan(happened);
+  // Filled in from the ticks until the person types their own answer.
+  const paidHow =
+    paidHowTyped ??
+    happened
+      .map((key) => paidWays[key])
+      .filter(Boolean)
+      .join(', ');
   const finished = plan.filter((item) => done.includes(item.step));
   const report = buildReport({
     when,
@@ -44,6 +66,12 @@ export function Recovery({ message }: { message: string }) {
     list.includes(item) ? list.filter((x) => x !== item) : [...list, item];
   return (
     <section class="recovery-content" aria-labelledby="recovery-title">
+      {onBack && (
+        <button class="secondary recovery-back" onClick={onBack}>
+          <Icon name="back" />
+          Back
+        </button>
+      )}
       <h1 id="recovery-title" tabIndex={-1}>
         Let’s take this one step at a time.
       </h1>
@@ -51,24 +79,38 @@ export function Recovery({ message }: { message: string }) {
         These messages are built to be convincing. There’s no blame here, and acting quickly can
         help.
       </p>
-      <fieldset class="recovery-options">
-        <legend>What happened? Choose all that apply.</legend>
-        {Object.entries(actions).map(([key, label]) => {
-          const action = key as RecoveryAction;
-          return (
-            <label class={happened.includes(action) ? 'chosen' : ''}>
-              <input
-                type="checkbox"
-                checked={happened.includes(action)}
-                onChange={() => setHappened(toggle(happened, action))}
-              />
-              {label}
-            </label>
-          );
-        })}
-      </fieldset>
+      <div class="recovery-pick">
+        <fieldset class="recovery-options">
+          <legend>What happened? Choose all that apply.</legend>
+          {Object.entries(actions).map(([key, label]) => {
+            const action = key as RecoveryAction;
+            return (
+              <label class={happened.includes(action) ? 'chosen' : ''}>
+                <input
+                  type="checkbox"
+                  checked={happened.includes(action)}
+                  onChange={() => setHappened(toggle(happened, action))}
+                />
+                {label}
+              </label>
+            );
+          })}
+        </fieldset>
+        {plan.length > 0 && (
+          <a
+            class="plan-jump"
+            href="#plan"
+            onClick={(e) => {
+              e.preventDefault();
+              document.getElementById('plan')?.scrollIntoView({ block: 'start' });
+            }}
+          >
+            See your {plan.length} {plan.length === 1 ? 'step' : 'steps'} ↓
+          </a>
+        )}
+      </div>
       {plan.length > 0 && (
-        <div class="plan" aria-live="polite">
+        <div class="plan" id="plan" aria-live="polite">
           <div class="plan-head">
             <h2>Your next steps</h2>
             <span role="status" class="small muted">

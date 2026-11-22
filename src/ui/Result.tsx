@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import evaluation from '../../docs/evaluation.json';
 import type { Analysis } from '../engine/analyze';
 import { trustNote } from '../engine/redact';
+import { askBackAdvice, type Answers, type QuestionId } from '../flows/askback';
 import { AskBack } from './AskBack';
 import { cluePieces, mergeFindings } from './clues';
 import { Icon } from './icons';
@@ -17,6 +18,15 @@ export const outcomeNames = {
 export const outcomeStatus: Partial<Record<keyof typeof outcomeNames, string>> = {
   none: 'No known signs found',
 };
+const asked: Record<QuestionId, string> = {
+  code: 'asks for a code, a password or card details',
+  money: 'asks for money',
+  act: 'asks you to open a link, call a number or install something',
+};
+function listAsks(ids: QuestionId[]) {
+  const words = ids.map((id) => asked[id]);
+  return words.length < 2 ? words[0] : `${words.slice(0, -1).join(', ')} and ${words.at(-1)}`;
+}
 export function focusId(id: string) {
   const el = document.getElementById(id);
   el?.focus();
@@ -41,13 +51,20 @@ export function Result({
   const [share, setShare] = useState(false),
     [copyStatus, setCopyStatus] = useState(''),
     [active, setActive] = useState<string[] | null>(null),
-    [draft, setDraft] = useState<string | null>(null);
+    [draft, setDraft] = useState<string | null>(null),
+    [answers, setAnswers] = useState<Answers>({});
   const { level } = result;
   const findings = mergeFindings(result.findings);
   const pieces = cluePieces(text, findings);
   // The note starts redacted and the person can edit it; copying and sharing use the edited text.
   const note = draft ?? trustNote(text);
   const undecided = level === 'none' || level === 'unsupported' || level === 'too_short';
+  // A "yes" or "not sure" to a risky request outweighs "no known signs" in the wording.
+  const raisedBy = (Object.keys(asked) as QuestionId[]).filter(
+    (id) => answers[id] === 'yes' || answers[id] === 'unsure',
+  );
+  const raised = undecided && askBackAdvice(answers).state === 'pause';
+  const shown = raised ? 'caution' : level;
   const isActive = (ids: string[]) => !!active && ids.some((id) => active.includes(id));
   const showFinding = (ids: string[]) => {
     setActive(ids);
@@ -69,28 +86,36 @@ export function Result({
           Already clicked or paid?
         </button>
       </div>
-      <div class={`outcome ${level}`}>
+      <div class={`outcome ${shown}`}>
         <span class="outcome-icon">
-          <Icon name={level === 'too_short' || level === 'unsupported' ? 'help' : level} />
+          <Icon name={shown === 'too_short' || shown === 'unsupported' ? 'help' : shown} />
         </span>
-        <div>
-          {outcomeStatus[level] && <span class="outcome-status">{outcomeStatus[level]}</span>}
+        <div aria-live="polite">
+          {raised ? (
+            <span class="outcome-status">Your answers changed this result</span>
+          ) : (
+            outcomeStatus[level] && <span class="outcome-status">{outcomeStatus[level]}</span>
+          )}
           <h2 id="outcome-title" tabIndex={-1}>
-            {outcomeNames[level]}
+            {raised ? 'Treat it as suspicious' : outcomeNames[level]}
           </h2>
-          {(level === 'none' || level === 'unsupported') && (
+          {!raised && (level === 'none' || level === 'unsupported') && (
             <strong class="outcome-warning">This does not mean the message is safe.</strong>
           )}
-          {level === 'none' && evaluation.blind && (
+          {!raised && level === 'none' && evaluation.blind && (
             <p class="outcome-note">
               In our synthetic blind test, {evaluation.blind.scam.none.count} of{' '}
               {evaluation.blind.scam.none.total} scam messages also got this result.
             </p>
           )}
-          <p>{result.summary}</p>
+          <p>
+            {raised
+              ? `By your answers, it ${listAsks(raisedBy)}, and nothing here confirms who sent it. Check through a route you already trust before you do anything.`
+              : result.summary}
+          </p>
         </div>
       </div>
-      {undecided && <AskBack />}
+      {undecided && <AskBack answers={answers} setAnswers={setAnswers} />}
       {level !== 'too_short' && (
         <>
           <div class="next-step">

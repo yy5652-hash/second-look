@@ -94,6 +94,10 @@ test.describe('checking a message', () => {
     await expect(panel.locator('.askback-advice')).toContainText('isn’t asking you');
     await expect(panel).not.toContainText(/\bsafe\b/);
     await answer(/code, a password/, 'Yes');
+    // A risky answer outweighs "no known signs": the top of the result changes with it.
+    await expect(page.locator('#outcome-title')).toHaveText('Treat it as suspicious');
+    await expect(page.locator('.outcome')).toHaveClass(/caution/);
+    await expect(page.locator('.outcome')).toContainText('Your answers changed this result');
     // The advice for a question appears right under that question.
     await expect(
       panel.getByRole('group', { name: /code, a password/ }).locator('.askback-inline'),
@@ -101,6 +105,7 @@ test.describe('checking a message', () => {
     await expect(panel.locator('.askback-advice')).toContainText('suspicious');
     await answer(/pay or send money/, 'Not sure');
     await expect(panel.locator('.askback-inline:not(:empty)')).toHaveCount(2);
+    await expect(page.locator('.outcome')).toContainText('asks for a code, a password or card details and asks for money');
   });
 
   test('every example gives its labelled outcome', async ({ page }) => {

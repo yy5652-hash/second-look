@@ -51,6 +51,20 @@ describe('signal combinations and bounded input', () => {
   });
   it('a harmless Chinese message does not get a warning level', () =>
     expect(analyze('明天下午三点在图书馆见面，记得带书。').level).toBe('unsupported'));
+  it('treats other languages in Latin letters as unsupported, not as English with no signs', () => {
+    expect(
+      analyze(
+        'Hola mamá, se me rompió el móvil, este es mi número nuevo. ¿Me puedes hacer una transferencia de 300 euros hoy?',
+      ).level,
+    ).toBe('unsupported');
+    expect(
+      analyze('Bonjour, votre colis est en attente. Payez les frais avec ce lien aujourd’hui')
+        .level,
+    ).toBe('unsupported');
+    expect(
+      analyze('Hi Mum, I am at the café with José, see you at the fiesta later').level,
+    ).not.toBe('unsupported');
+  });
   it('a strong link flag still beats unsupported wording', () => {
     expect(analyze('请访问 https://paypal.com@evil.example/x').level).toBe('caution');
     expect(analyze('请访问 https://paypa1.example').level).toBe('stop');
