@@ -3,13 +3,15 @@
 const { chromium } = require('playwright');
 const path = require('path');
 (async () => {
+  const theme = (process.argv.find(a => a.startsWith('--theme=')) || '--theme=wave').slice(8); // chosen 11-22: wave
+  process.argv = process.argv.filter(a => !a.startsWith('--theme='));
   const yt = process.argv[2] === '--yt';
   const out = yt ? process.argv[3] : (process.argv[2] || path.join(__dirname, '..', 'docs/screenshots/cover.png'));
   const b = await chromium.launch();
   const p = await b.newPage(yt
     ? { viewport: { width: 1422, height: 800 }, deviceScaleFactor: 1280 / 1422 }
     : { viewport: { width: 1200, height: 800 }, deviceScaleFactor: 2 });
-  await p.goto('file://' + path.join(__dirname, 'cover.html') + (yt ? '?wide' : ''), { waitUntil: 'networkidle' });
+  await p.goto('file://' + path.join(__dirname, 'cover.html') + '?' + (yt ? 'wide&' : '') + (theme ? 'theme=' + theme : ''), { waitUntil: 'networkidle' });
   await p.evaluate(() => document.fonts.ready);
   await p.screenshot(yt ? { path: out, type: 'jpeg', quality: 92 } : { path: out });
   await b.close();
